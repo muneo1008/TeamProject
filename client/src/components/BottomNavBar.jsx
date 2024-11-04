@@ -16,10 +16,10 @@ const BottomNavBar = () => {
             case '/':
                 setValue(0);
                 break;
-            case '/auction':
+            case '/login':
                 setValue(1);
                 break;
-            case '/chats':
+            case '/color':
                 setValue(2);
                 break;
             case '/account':
@@ -76,7 +76,7 @@ const BottomNavBar = () => {
                 />
                 <BottomNavigationAction
                     component={Link}
-                    to="/chats"
+                    to="/color"
                     label="채팅"
                     icon={<ChatIcon/>}
                 />

@@ -25,7 +25,6 @@ const TopAppBar = () => {
                     코디On
                 </Typography>
             </Toolbar>
-            <Toolbar/>
         </>
 
     );

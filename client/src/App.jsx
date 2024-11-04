@@ -3,9 +3,11 @@ import Home from './pages/Home.jsx';
 import Register from './pages/Register.jsx';
 import './App.css'
 import {Route, Routes} from "react-router-dom";
-import {Container} from "@mui/material";
+import {Container, Toolbar} from "@mui/material";
+import Camera from "./components/Camera.jsx";
 import BottomNavBar from "./components/BottomNavBar.jsx";
 import TopAppBar from "./components/TopAppBar.jsx";
+import {useState} from "react";
 
 
 function App() {
@@ -14,13 +16,11 @@ function App() {
       <Container
           maxWidth="600px"
           sx={{
-              padding: 2,
               height: '100vh',
               display: 'flex',
               alignItems: 'center',
               flexDirection: 'column',
               justifyContent: 'flex-start',
-              paddingTop:0,
               margin: '0 auto',
               maxWidth:'600px',
               borderColor: '#9a9696',
@@ -36,7 +36,9 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login/>} />
               <Route path="/register" element={<Register/>} />
+              <Route path="/color" element={<Camera/>} />
           </Routes>
+          <Toolbar/>
           <BottomNavBar/>
 
       </Container>
