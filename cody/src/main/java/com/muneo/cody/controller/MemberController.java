@@ -83,4 +83,12 @@ public class MemberController {
             return ResponseEntity.status(400).body(Map.of("success", false, "message", "인증 코드가 유효하지 않습니다."));
         }
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
+        memberService.resetPassword(email, newPassword);
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
+    }
 }

@@ -112,4 +112,21 @@ public class MemberService {
                 .longitude(member.getLongitude())
                 .build();
     }
+
+    public void resetPassword(String email, String newPassword) {
+        if (!PASSWORD_PATTERN.matcher(newPassword).matches()) {
+            throw new IllegalArgumentException("비밀번호는 최소 8자리 이상이며 특수문자를 포함해야 합니다.");
+        }
+
+        Optional<Member> optionalMember = memberRepository.findByEmail(email);
+        if (optionalMember.isEmpty()) {
+            throw new IllegalArgumentException("해당 이메일을 가진 사용자가 존재하지 않습니다.");
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        Member member = optionalMember.get();
+        member.setPassword(encodedPassword);
+        memberRepository.save(member);
+    }
 }
