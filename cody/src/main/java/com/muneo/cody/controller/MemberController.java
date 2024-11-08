@@ -27,12 +27,6 @@ public class MemberController {
         return ResponseEntity.ok(Map.of("success", true, "memberId", member.getMemberId()));
     }
 
-    @PostMapping("/signup/external")
-    public ResponseEntity<?> signUpExternal(@RequestBody MemberDto memberDto) {
-        Member member = memberService.signUpExternal(memberDto);
-        return ResponseEntity.ok(Map.of("success", true, "memberId", member.getMemberId()));
-    }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
         String email = loginData.get("email");

@@ -69,18 +69,6 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public Member signUpExternal(MemberDto memberDto) {
-        Member member = new Member();
-        member.setNickname(memberDto.getNickname());
-        member.setGender(memberDto.getGender());
-        member.setAge(memberDto.getAge());
-        member.setSocialId(memberDto.getSocialId());
-        member.setProvider(memberDto.getProvider());
-        member.setLatitude(memberDto.getLatitude());
-        member.setLongitude(memberDto.getLongitude());
-
-        return memberRepository.save(member);
-    }
 
     public Optional<Member> login(String email, String password) {
         Optional<Member> member = memberRepository.findByEmail(email);
