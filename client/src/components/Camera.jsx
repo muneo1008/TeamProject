@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, Box, Snackbar } from '@mui/material';
 
 const Camera = () => {
@@ -80,14 +80,14 @@ const Camera = () => {
 
     return (
         <Box sx={{ textAlign: 'center', position: 'relative' }}>
-            {error && (
-                <Snackbar
-                    open={snackbarOpen}
-                    autoHideDuration={3000}
-                    onClose={() => setSnackbarOpen(false)}
-                    message={error}
-                />
-            )}
+            {/*{error && (*/}
+            {/*    <Snackbar*/}
+            {/*        open={snackbarOpen}*/}
+            {/*        autoHideDuration={3000}*/}
+            {/*        onClose={() => setSnackbarOpen(false)}*/}
+            {/*        message={error}*/}
+            {/*    />*/}
+            {/*)}*/}
 
             {!photoUrl && (
                 <video
