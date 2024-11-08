@@ -1,7 +1,6 @@
 import {Box, Card, CardContent, Typography,} from "@mui/material";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
-import RainPng from '../assets/weatherImg/heavy-rain.png';
 import SnowImg from '../assets/weatherImg/snow.png';
 const Weather = () =>{
 
