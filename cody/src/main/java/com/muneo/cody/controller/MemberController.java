@@ -2,6 +2,8 @@ package com.muneo.cody.controller;
 
 import com.muneo.cody.dto.MemberDto;
 import com.muneo.cody.entity.Member;
+import com.muneo.cody.repository.MemberRepository;
+import com.muneo.cody.service.KakaoService;
 import com.muneo.cody.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +22,15 @@ public class MemberController {
 
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private MemberRepository memberRepository;
+    @Autowired
+    private KakaoService kakaoService;
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody MemberDto memberDto) {
@@ -27,10 +38,32 @@ public class MemberController {
         return ResponseEntity.ok(Map.of("success", true, "memberId", member.getMemberId()));
     }
 
-    @PostMapping("/signup/external")
+    @PostMapping("/signup/ex")
     public ResponseEntity<?> signUpExternal(@RequestBody MemberDto memberDto) {
         Member member = memberService.signUpExternal(memberDto);
         return ResponseEntity.ok(Map.of("success", true, "memberId", member.getMemberId()));
+    }
+
+
+    @PostMapping("/kakao")
+    public ResponseEntity<?> kakaoLogin(@RequestBody Map<String, String> codeData) {
+        String code = codeData.get("code");
+        Map<String, String> kakaoUserInfo = kakaoService.getKakaoUserInfo(code);
+        String email = kakaoUserInfo.get("email");
+        String socialId = kakaoUserInfo.get("socialId");
+        String provider = "kakao";
+
+        Optional<Member> member = memberRepository.findBySocialId(socialId);
+        if (member.isPresent()) {
+            String token = memberService.createToken(member.get());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Set-Cookie", "token=" + token + "; Path=/; Max-Age=86400");
+
+            return ResponseEntity.ok().headers(headers).body(Map.of("isMember", true));
+        } else {
+            return ResponseEntity.ok(Map.of("isMember", false, "socialId", socialId, "provider", provider, "email", email));
+        }
     }
 
     @PostMapping("/login")
@@ -62,8 +95,24 @@ public class MemberController {
     }
 
     @PostMapping("/send-code")
-    public ResponseEntity<?> sendVerificationCode(@RequestBody Map<String, String> emailData) {
-        String email = emailData.get("email");
+    public ResponseEntity<?> sendVerificationCode(@RequestBody Map<String, String> requestData) {
+        String email = requestData.get("email");
+        String purpose = requestData.get("purpose");
+
+        if ("signup".equals(purpose)) {
+            // 회원가입용 이메일 중복 체크
+            if (memberService.emailExists(email)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "이미 존재하는 이메일입니다."));
+            }
+        } else if ("reset-password".equals(purpose)) {
+            // 비밀번호 찾기용 이메일 존재 확인
+            if (!memberService.emailExists(email)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "해당 이메일이 존재하지 않습니다."));
+            }
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", "유효하지 않은 요청입니다."));
+        }
+
         memberService.sendVerificationCode(email);
         return ResponseEntity.ok(Map.of("success", true, "message", "인증 코드가 전송되었습니다."));
     }
