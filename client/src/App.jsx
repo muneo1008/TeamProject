@@ -2,16 +2,40 @@ import Login from './pages/Login.jsx';
 import Home from './pages/Home.jsx';
 import Register from './pages/Register.jsx';
 import './App.css'
-import {Route, Routes} from "react-router-dom";
+import {Route, Routes, useNavigate} from "react-router-dom";
 import {Container, Toolbar} from "@mui/material";
 import Camera from "./components/Camera.jsx";
 import BottomNavBar from "./components/BottomNavBar.jsx";
 import TopAppBar from "./components/TopAppBar.jsx";
-import {useState} from "react";
-
+import {useSelector, useDispatch} from "react-redux";
+import MyPage from './pages/MyPage.jsx';
+import Snap from "./pages/Snap.jsx";
+import {useEffect} from "react";
+import {userInfo} from './api.jsx';
+import {SetNickName, SetEmail, isLogin} from "./store.jsx";
 
 function App() {
+    const user = useSelector(state => state.user);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const isValid = async ()=>{
+        try {
+            const result = await userInfo();
+            console.log('토큰 정보 유효',result);
+            dispatch(SetNickName(result.nickname));
+            dispatch(SetEmail(result.email));
+            dispatch(isLogin(true));
+            navigate('/home');
+        }catch (error){
+            console.log('내 정보 불러오기 실패:', error);
+            dispatch(isLogin(false));
+            navigate('/');
+        }
+    }
 
+    useEffect(() => {
+        isValid();
+    }, [user.isLogin]);
   return (
       <Container
           maxWidth="600px"
@@ -33,10 +57,12 @@ function App() {
       >
           <TopAppBar/>
           <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login/>} />
+              <Route path="/" element={<Login />} />
+              <Route path="/home" element={<Home/>} />
               <Route path="/register" element={<Register/>} />
               <Route path="/color" element={<Camera/>} />
+              <Route path="/mypage" element={<MyPage/>}/>
+              <Route path="/snap" element={<Snap/>}/>
           </Routes>
           <Toolbar/>
           <BottomNavBar/>

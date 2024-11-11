@@ -91,7 +91,6 @@ public class MemberService {
 
         return memberRepository.save(member);
     }
-
     private void validateNickname(String nickname) {
         if (!NICKNAME_PATTERN.matcher(nickname).matches()) {
             throw new IllegalArgumentException("닉네임은 2자 이상 16자 이하이며, 영어 소문자 시작, 숫자와 _(언더바)만 허용됩니다.");

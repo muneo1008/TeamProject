@@ -4,15 +4,31 @@ let user = createSlice({
     name: "user",
     initialState: {
         nickName: null,
+        isLogin: false,
+        email: null,
+        longitude: null,
+        latitude: null,
     },
     reducers:{
-        changeNickName(state, action){
-            state.nickName = action.payload.nickName;
+        SetNickName(state, action){
+            state.nickName = action.payload;
+        },
+        isLogin(state, action){
+            state.isLogin = action.payload;
+        },
+        SetEmail(state, action){
+            state.email = action.payload;
+        },
+        setLongitude(state, action){
+            state.longitude = action.payload;
+        },
+        setLatitude(state, action){
+            state.latitude = action.payload;
         }
     }
 })
 
-export let {changeNickName} = user.actions;
+export let {SetNickName,isLogin, SetEmail, setLatitude,setLongitude} = user.actions;
 
 export default configureStore({
     reducer:{

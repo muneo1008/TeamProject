@@ -1,9 +1,14 @@
 
-import { useEffect , useState} from 'react';
+import { useState} from 'react';
 import {Box, TextField, Button, Typography} from '@mui/material';
 import {useNavigate} from "react-router-dom";
+import {loginUser} from '../api.jsx'
+import {useDispatch} from "react-redux";
+import {isLogin} from "../store.jsx";
+import BasicBtn from "../components/BasicBtn.jsx";
 
 const Login = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -15,14 +20,22 @@ const Login = () => {
         setPassword(event.target.value);
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         console.log("Logging in with:", { email, password });
-        //로그인 요청
+        try{
+            const result = await loginUser(email, password);
+            console.log('로그인 성공' , result);
+            dispatch(isLogin(true));
+            navigate('/home');
+        }catch (err){
+            console.log('로그인 실패: ',err);
+            dispatch(isLogin(false));
+        }
     };
     return (
         <>
-            <Typography variant="h5" align="center" gutterBottom>
+            <Typography variant="h5" align="center" gutterBottom sx={{marginTop:8}}>
                 로그인
             </Typography>
             <Box component="form" onSubmit={handleSubmit}>
@@ -45,19 +58,12 @@ const Login = () => {
                     onChange={handlePasswordChange}
                 />
                 <Box display="flex" justifyContent="flex-end" mt={1}>
-                    <Button variant="text" onClick={() => navigate('/register')}>
+                    <Button variant="text" color="black" onClick={() => navigate('/register')}>
                         계정이 없으신가요?
                     </Button>
                 </Box>
-                <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                    로그인
-                </Button>
-                <Button variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                    카카오로 로그인
-                </Button>
-                <Button variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                    구글로 로그인
-                </Button>
+                <BasicBtn text = "로그인" bgColor='black' textColor='white' />
+                <BasicBtn text = "카카오 로그인" bgColor='#FEE500' textColor='black'/>
             </Box>
         </>
 

@@ -1,9 +1,15 @@
-import {useState} from "react";
+
+import Weather from "../components/Weather.jsx";
+import CodyRecommend from "../components/CodyRecommend.jsx";
 
 const Home = () => {
-    const [isInfo, setIsInfo] = useState(false);
+
     return (
-        <h1>홈 페이지</h1>
-    )
-}
+        <>
+            <Weather/>
+            <CodyRecommend/>
+        </>
+
+    );
+};
 export default Home

@@ -1,14 +1,15 @@
 import {
     Box,
-    Button,
-    FormControl,  IconButton, InputAdornment,
-    InputLabel,
-    OutlinedInput, Stack, Toolbar,
+    FormControl, IconButton, InputAdornment,
+    InputLabel, MenuItem,
+    OutlinedInput, Select, Stack, TextField, Toolbar,
     Typography
 } from "@mui/material";
 import {useNavigate} from "react-router-dom";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Visibility, VisibilityOff} from "@mui/icons-material";
+import {registerUser} from "../api.jsx";
+import BasicBtn from "../components/BasicBtn.jsx";
 
 const Register = () =>{
     const [showPassword, setShowPassword] = useState(false);
@@ -17,35 +18,49 @@ const Register = () =>{
     const [password, setPassword] = useState('');
     const [checkPassword, setCheckPassword] = useState('');
     const [nickName, setNickName] = useState('');
-    const handleEmailChange = (event) => {
-        setEmail(event.target.value);
-    };
+    const [gender, setGender] = useState('');
+    const [location, setLocation] = useState({ latitude: null, longitude: null });
+    const [error, setError] = useState(null);
+    const [age, setAge] = useState(0);
+    const navigate = useNavigate();
 
-    const handlePasswordChange = (event) => {
-        setPassword(event.target.value);
-    };
-    const handleCheckPasswordChange = (event) => {
-        setCheckPassword(event.target.value);
-    };
-
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        if(password === checkPassword){
-            console.log("Logging in with:", { email, password, nickName});
-        }else{
-            console.log("no")
+        try{
+            const result = await registerUser(email, password, nickName,
+                gender, age, location.latitude,location.longitude);
+            console.log('회원가입 성공: ',result);
+            navigate('/');
+        }catch (err){
+            console.log('회원가입 실패: ',err);
+            console.log({email,password,nickName,age,gender});
         }
-        //회원가입 요청, 가입완료면 로그인 화면으로 아니면 다시 폼 입력
     };
-    const handleClickShowPassword = () => setShowPassword((show) => !show);
-    const handleClickShowCheckPassword = () => setShowCheckPassword((show) => !show);
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setLocation({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    });
+                },
+                (error) => {
+                    setError(error.message);
+                }
+            );
+        } else {
+            setError("지원하지 않는 기능");
+        }
+    }, []);
     return(
         <>
-            <Typography variant="h5" align="center" gutterBottom>
+            <Typography variant="h5" align="center" gutterBottom sx={{marginTop:8}}>
                 회원가입
             </Typography>
             <Box component="form" onSubmit={handleSubmit} sx={{width: "100%"}}>
-                <Stack spacing={2} sx={{marginLeft:'10px',marginRight:'10px'}}>
+                <Stack spacing={2} sx={{marginLeft: '10px', marginRight: '10px'}}>
                     <FormControl variant="outlined" fullWidth>
                         <InputLabel htmlFor="outlined-adornment-password">이메일</InputLabel>
                         <OutlinedInput
@@ -53,7 +68,7 @@ const Register = () =>{
                             label="Email"
                             type='email'
                             value={email}
-                            onChange={handleEmailChange}
+                            onChange={(e)=>{setEmail(e.target.value)}}
                         />
                     </FormControl>
                     <FormControl variant="outlined">
@@ -61,15 +76,15 @@ const Register = () =>{
                         <OutlinedInput
                             id="outlined-adornment-password"
                             type={showPassword ? 'text' : 'password'}
-                            onChange={handlePasswordChange}
+                            onChange={(e)=>{setPassword(e.target.value)}}
+                            value={password}
                             endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton
-                                        aria-label={showPassword ? 'hide the password' : 'display the password'}
-                                        onClick={handleClickShowPassword}
+                                        onClick={()=>{setShowPassword(!showPassword)}}
                                         edge="end"
                                     >
-                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        {showPassword ? <VisibilityOff/> : <Visibility/>}
                                     </IconButton>
                                 </InputAdornment>
                             }
@@ -81,15 +96,16 @@ const Register = () =>{
                         <OutlinedInput
                             id="outlined-adornment-password-confirm"
                             type={showCheckPassword ? 'text' : 'password'}
-                            onChange={handleCheckPasswordChange}
+                            onChange={(e)=>{setCheckPassword(e.target.value)}}
+                            value={checkPassword}
                             endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton
                                         aria-label={showCheckPassword ? 'hide the password' : 'display the password'}
-                                        onClick={handleClickShowCheckPassword}
+                                        onClick={()=>{setShowCheckPassword(!showCheckPassword)}}
                                         edge="end"
                                     >
-                                        {showCheckPassword ? <VisibilityOff /> : <Visibility />}
+                                        {showCheckPassword ? <VisibilityOff/> : <Visibility/>}
                                     </IconButton>
                                 </InputAdornment>
                             }
@@ -103,14 +119,36 @@ const Register = () =>{
                             label="Nickname"
                             type='text'
                             value={nickName}
-                            onChange={(e)=>{setNickName(e.target.value)}}
+                            onChange={(e) => {
+                                setNickName(e.target.value)
+                            }}
                         />
+                    </FormControl>
+                    <TextField
+                        label="나이"
+                        type="number"
+                        variant="outlined"
+                        fullWidth
+                        value={age}
+                        onChange={(e) => setAge(e.target.value)}
+                    />
+                    <FormControl variant="outlined" fullWidth>
+                        <InputLabel id="gender-label">성별</InputLabel>
+                        <Select
+                            labelId="gender-label"
+                            id="gender-select"
+                            value={gender}
+                            onChange={(e) => setGender(e.target.value)}
+                            label="성별"
+                        >
+                            <MenuItem value="male">남성</MenuItem>
+                            <MenuItem value="female">여성</MenuItem>
+                        </Select>
                     </FormControl>
 
 
-                    <Button type="submit" variant="contained" color="primary">
-                        회원가입
-                    </Button>
+
+                    <BasicBtn text="회원가입" bgColor="black" textColor='white'/>
                 </Stack>
             </Box>
             <Toolbar/>

@@ -5,12 +5,15 @@ import {Provider} from 'react-redux';
 import store from './store.jsx';
 import './index.css'
 import App from './App.jsx'
+import {CookiesProvider} from "react-cookie";
 
 createRoot(document.getElementById('root')).render(
     <Provider store={store}>
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
+        <CookiesProvider>
+            <BrowserRouter>
+                <App />
+            </BrowserRouter>
+        </CookiesProvider>
     </Provider>
 
 
