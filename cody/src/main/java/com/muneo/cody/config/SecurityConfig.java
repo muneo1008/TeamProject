@@ -29,7 +29,10 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/member/signup", "/api/member/login","/api/member/verify-code","/api/member/send-code").permitAll()
+                        .requestMatchers("/api/member/signup", "/api/member/login",
+                                "/api/member/verify-code","/api/member/send-code",
+                                "/api/member/kakao","api/member/signup/ex","/api/weather","/api/weather2",
+                                "/api/ai-fashion","/api/member/reset-password").permitAll()
                         .anyRequest().authenticated()
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
