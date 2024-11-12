@@ -24,7 +24,6 @@ public class WeatherController {
             Map<String, String> weatherData = weatherService.fetchWeatherData(latitude, longitude);
             return ResponseEntity.ok(Map.of("values", weatherData));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("error", "An error occurred while retrieving weather data."));
         }
     }
