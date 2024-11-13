@@ -6,12 +6,20 @@ import {loginUser} from '../api.jsx'
 import {useDispatch} from "react-redux";
 import {isLogin} from "../store.jsx";
 import BasicBtn from "../components/BasicBtn.jsx";
+import KakaoLoginImage from "../assets/kakao_login_medium_wide.png"
 
 const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    const CLIENT_ID = import.meta.env.CLIENT_ID;
+    const REDIRECT_URI = import.meta.env.REDIRECT_URI;
+
+    const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+
+
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
     };
@@ -22,7 +30,7 @@ const Login = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log("Logging in with:", { email, password });
+        //console.log("Logging in with:", { email, password });
         try{
             const result = await loginUser(email, password);
             console.log('로그인 성공' , result);
@@ -63,7 +71,20 @@ const Login = () => {
                     </Button>
                 </Box>
                 <BasicBtn text = "로그인" bgColor='black' textColor='white' />
-                <BasicBtn text = "카카오 로그인" bgColor='#FEE500' textColor='black'/>
+                <Button
+                    component="a"
+                    href={KAKAO_AUTH_URL}
+                    sx={{
+                        width: '100%',
+                        height: '36.5px',
+                        backgroundImage: `url(${KakaoLoginImage})`,
+                        borderRadius:'12px',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        mt:2
+                    }}
+                >
+                </Button>
             </Box>
         </>
 
