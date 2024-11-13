@@ -10,9 +10,10 @@ import TopAppBar from "./components/TopAppBar.jsx";
 import {useSelector, useDispatch} from "react-redux";
 import MyPage from './pages/MyPage.jsx';
 import Snap from "./pages/Snap.jsx";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {userInfo} from './api.jsx';
-import {SetNickName, SetEmail, isLogin} from "./store.jsx";
+import {SetNickName, SetEmail, isLogin, setLatitude,setLongitude} from "./store.jsx";
+import SingUpEx from "./pages/SingUpEx.jsx";
 
 function App() {
     const user = useSelector(state => state.user);
@@ -24,6 +25,8 @@ function App() {
             console.log('토큰 정보 유효',result);
             dispatch(SetNickName(result.nickname));
             dispatch(SetEmail(result.email));
+            dispatch(setLatitude(result.latitude));
+            dispatch(setLongitude(result.longitude));
             dispatch(isLogin(true));
             navigate('/home');
         }catch (error){
@@ -35,7 +38,8 @@ function App() {
 
     useEffect(() => {
         isValid();
-    }, [user.isLogin]);
+    },[isLogin]);
+
   return (
       <Container
           maxWidth="600px"
@@ -56,14 +60,15 @@ function App() {
           }}
       >
           <TopAppBar/>
-          <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/home" element={<Home/>} />
-              <Route path="/register" element={<Register/>} />
-              <Route path="/color" element={<Camera/>} />
-              <Route path="/mypage" element={<MyPage/>}/>
-              <Route path="/snap" element={<Snap/>}/>
-          </Routes>
+          <Toolbar/>
+              <Routes>
+                  <Route path="/" element={<Login />} />
+                  <Route path="/home" element={<Home/>} />
+                  <Route path="/register" element={<Register/>} />
+                  <Route path="/color" element={<Camera/>} />
+                  <Route path="/mypage" element={<MyPage/>}/>
+                  <Route path="/snap" element={<Snap/>}/>
+              </Routes>
           <Toolbar/>
           <BottomNavBar/>
 
