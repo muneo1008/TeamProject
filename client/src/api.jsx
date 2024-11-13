@@ -11,7 +11,6 @@ const api = axios.create({
 api.interceptors.response.use(
     response => response,
     error => {
-        // 에러 처리 로직
         console.error(error);
         return Promise.reject(error);
     }
@@ -51,6 +50,46 @@ export const registerUser = async (email, password, nickname, gender, age, latit
 export const userInfo = async ()=>{
     try{
         const response = await api.get('/member/me');
+        return response.data;
+    }catch (error){
+        console.log(error);
+        throw error;
+    }
+}
+
+export const weatherInfo = async (latitude, longitude)=>{
+    try {
+        const response = await api.post('/weather',{
+            latitude:latitude,
+            longitude: longitude
+        });
+        return response.data;
+    }catch (error){
+        console.log(error);
+        throw error;
+    }
+
+}
+
+export const sendCode = async (email)=>{
+    try {
+        const response = await api.post('/member/send-code',{
+            email:email,
+            purpose:"signup"
+        })
+        return response.data;
+    }catch (error){
+        console.log(error);
+        throw error;
+    }
+}
+
+export const verifyCode = async (email, code)=>{
+    try{
+        const response = await api.post('/member/verify-code',{
+            email:email,
+            code:code
+        })
         return response.data;
     }catch (error){
         console.log(error);
