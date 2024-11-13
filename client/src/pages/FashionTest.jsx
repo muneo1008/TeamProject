@@ -1,5 +1,6 @@
 import {Box, Typography} from "@mui/material";
 import findPColor from '../assets/colorTest/findPColor.png'
+import colorTest from '../assets/colorTest/colorTest.png'
 const FashionTest = ()=>{
     return(
         <Box sx={{width:'100%',
@@ -30,10 +31,10 @@ const FashionTest = ()=>{
                 </Typography>
                 <Box component="img" src={findPColor} sx={{width:'30%',borderRadius:'16px',mt:1}}/>
                 <Typography variant="h5"
-                            sx={{fontWeight:'bold'}}>
-                    #퍼스널 컬러
+                            sx={{fontWeight:'bold',mt:2}}>
+                    #패션 심리 테스트
                 </Typography>
-                <Box component="img" src={findPColor} sx={{width:'30%',borderRadius:'16px',mt:1}}/>
+                <Box component="img" src={colorTest} sx={{width:'30%',borderRadius:'16px',mt:1}}/>
             </Box>
         </Box>
     );
