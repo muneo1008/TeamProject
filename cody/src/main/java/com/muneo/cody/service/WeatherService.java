@@ -2,8 +2,12 @@ package com.muneo.cody.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.muneo.cody.entity.WeatherData;
+import com.muneo.cody.repository.WeatherDataRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -16,6 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class WeatherService {
@@ -26,36 +31,74 @@ public class WeatherService {
     @Value("${weather.api.url}")
     private String apiUrl;
 
+    @Autowired
+    private WeatherDataRepository weatherDataRepository;
+
+    @Transactional
     public Map<String, String> fetchWeatherData(Double latitude, Double longitude) throws Exception {
         Map<String, Integer> grid = convertToGrid(latitude, longitude);
         int nx = grid.get("nx");
         int ny = grid.get("ny");
-        String baseDate = getBaseDate();
-        String baseTime = getClosestBaseTime();
-        String serviceKey = URLEncoder.encode(apiKey, "UTF-8");
+        LocalDate currentDate = LocalDate.now();
 
-        String url = apiUrl +
-                "?serviceKey=" + serviceKey +
-                "&pageNo=1" +
-                "&numOfRows=1000" +
-                "&dataType=JSON" +
-                "&base_date=" + baseDate +
-                "&base_time=" + baseTime +
-                "&nx=" + nx +
-                "&ny=" + ny;
+        System.out.println("Fetching weather data for date: " + currentDate + ", nx: " + nx + ", ny: " + ny);
 
-        System.out.println("Requesting weather data with URL: " + url);
+        // 같은 date, nx, ny의 데이터 중 id가 가장 낮은 항목을 조회 ( 가끔 2번 씩 실행되면 오류날 거를 보정 )
+        Optional<WeatherData> cachedData = weatherDataRepository.findFirstByDateAndNxAndNyOrderByIdAsc(currentDate, nx, ny);
+        Map<String, String> weatherData = new HashMap<>();
+
+        if (cachedData.isPresent()) {
+            weatherData.put("TMX", cachedData.get().getTmx());
+            weatherData.put("TMN", cachedData.get().getTmn());
+        } else {
+            Map<String, String> tmxTmnData = fetchTmxTmnFromApi(nx, ny, currentDate);
+
+            if (tmxTmnData.isEmpty()) {
+                throw new RuntimeException("Failed to retrieve TMX/TMN data from API.");
+            }
+
+            // 새로운 데이터를 저장하기 전에 동일한 데이터가 저장되지 않았는지 확인
+            if (!weatherDataRepository.findFirstByDateAndNxAndNyOrderByIdAsc(currentDate, nx, ny).isPresent()) {
+                WeatherData dataToSave = new WeatherData();
+                dataToSave.setDate(currentDate);
+                dataToSave.setNx(nx);
+                dataToSave.setNy(ny);
+                dataToSave.setTmx(tmxTmnData.get("TMX"));
+                dataToSave.setTmn(tmxTmnData.get("TMN"));
+                weatherDataRepository.save(dataToSave);
+
+                System.out.println("New data saved to cache: " + dataToSave);
+            }
+            weatherData.putAll(tmxTmnData);
+        }
+
+        Map<String, String> realTimeData = fetchRealTimeWeatherData(nx, ny);
+        if (realTimeData.isEmpty()) {
+            System.err.println("Failed to retrieve real-time weather data from API.");
+            throw new RuntimeException("Failed to retrieve real-time weather data from API.");
+        }
+        weatherData.putAll(realTimeData);
+
+        return weatherData;
+    }
+
+    private Map<String, String> fetchTmxTmnFromApi(int nx, int ny, LocalDate date) throws Exception {
+        String baseDate = date.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String url = apiUrl + "?serviceKey=" + URLEncoder.encode(apiKey, "UTF-8") +
+                "&pageNo=1&numOfRows=500&dataType=JSON&base_date=" + baseDate +
+                "&base_time=0200&nx=" + nx + "&ny=" + ny;
+
+        System.out.println("Fetching TMX/TMN from API: " + url);
 
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("GET");
-        conn.setRequestProperty("Content-type", "application/json");
 
-        BufferedReader rd;
-        if (conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        } else {
-            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-        }
+        int responseCode = conn.getResponseCode();
+        System.out.println("TMX/TMN API response code: " + responseCode);
+
+        BufferedReader rd = responseCode >= 200 && responseCode <= 300
+                ? new BufferedReader(new InputStreamReader(conn.getInputStream()))
+                : new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 
         StringBuilder responseBuilder = new StringBuilder();
         String line;
@@ -65,9 +108,47 @@ public class WeatherService {
         rd.close();
         conn.disconnect();
 
-        System.out.println("Raw weather API response: " + responseBuilder.toString());
 
-        return parseWeatherResponse(responseBuilder.toString());
+        Map<String, String> tmxTmnData = parseTmxTmn(responseBuilder.toString());
+        if (tmxTmnData.isEmpty()) {
+            System.err.println("Failed to parse TMX/TMN data from API response.");
+        }
+        return tmxTmnData;
+    }
+
+    private Map<String, String> fetchRealTimeWeatherData(int nx, int ny) throws Exception {
+        String baseDate = getBaseDate();
+        String baseTime = getClosestBaseTime();
+        String url = apiUrl + "?serviceKey=" + URLEncoder.encode(apiKey, "UTF-8") +
+                "&pageNo=1&numOfRows=10&dataType=JSON&base_date=" + baseDate +
+                "&base_time=" + baseTime + "&nx=" + nx + "&ny=" + ny;
+
+        System.out.println("Fetching real-time weather from API: " + url);
+
+        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.setRequestMethod("GET");
+
+        int responseCode = conn.getResponseCode();
+        System.out.println("Real-time weather API response code: " + responseCode);
+
+        BufferedReader rd = responseCode >= 200 && responseCode <= 300
+                ? new BufferedReader(new InputStreamReader(conn.getInputStream()))
+                : new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+
+        StringBuilder responseBuilder = new StringBuilder();
+        String line;
+        while ((line = rd.readLine()) != null) {
+            responseBuilder.append(line);
+        }
+        rd.close();
+        conn.disconnect();
+
+
+        Map<String, String> realTimeData = parseRealTimeWeather(responseBuilder.toString());
+        if (realTimeData.isEmpty()) {
+            System.err.println("Failed to parse real-time weather data from API response.");
+        }
+        return realTimeData;
     }
 
     private Map<String, Integer> convertToGrid(double lat, double lon) {
@@ -108,6 +189,7 @@ public class WeatherService {
 
         grid.put("nx", nx);
         grid.put("ny", ny);
+        System.out.println("Converted lat/lon to grid: nx = " + nx + ", ny = " + ny);
         return grid;
     }
 
@@ -122,7 +204,6 @@ public class WeatherService {
     private String getClosestBaseTime() {
         LocalTime now = LocalTime.now();
         List<String> baseTimes = List.of("0200", "0500", "0800", "1100", "1400", "1700", "2000", "2300");
-
         String closestBaseTime = "2300";
         for (String baseTime : baseTimes) {
             LocalTime time = LocalTime.parse(baseTime, DateTimeFormatter.ofPattern("HHmm"));
@@ -130,84 +211,56 @@ public class WeatherService {
                 closestBaseTime = baseTime;
             }
         }
+        System.out.println("Closest base time determined: " + closestBaseTime);
         return closestBaseTime;
     }
 
-    private Map<String, String> parseWeatherResponse(String response) throws Exception {
-        Map<String, String> filteredValues = new HashMap<>();
+    private Map<String, String> parseTmxTmn(String response) throws Exception {
+        Map<String, String> tmxTmnData = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(response);
-
-        JsonNode body = root.path("response").path("body");
-        String baseDate = body.path("items").path("item").get(0).path("baseDate").asText();
-
-        LocalDate baseLocalDate = LocalDate.parse(baseDate, DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String nextDay = baseLocalDate.plusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-        JsonNode items = body.path("items").path("item");
-
-        boolean tmxFound = false;
-        boolean tmnFound = false;
-
-        Map<String, String> closestValues = new HashMap<>();
-        int minDiffTmp = Integer.MAX_VALUE;
-        int minDiffSky = Integer.MAX_VALUE;
-        int minDiffPty = Integer.MAX_VALUE;
-
-        LocalTime currentTime = LocalTime.now();
-        int closestFcstTime = currentTime.getHour() * 100 + (currentTime.getMinute() >= 30 ? 30 : 0);
+        JsonNode items = root.path("response").path("body").path("items").path("item");
 
         for (JsonNode item : items) {
-            String fcstDate = item.path("fcstDate").asText();
             String category = item.path("category").asText();
-            String fcstTime = item.path("fcstTime").asText();
             String fcstValue = item.path("fcstValue").asText();
 
-            int fcstTimeInt = Integer.parseInt(fcstTime);
-            int timeDiff = Math.abs(closestFcstTime - fcstTimeInt);
-
-            if (category.equals("TMP") && fcstDate.equals(baseDate)) {
-                if (timeDiff < minDiffTmp) {
-                    minDiffTmp = timeDiff;
-                    closestValues.put("TMP", fcstValue);
-                }
-            } else if (category.equals("SKY") && fcstDate.equals(baseDate)) {
-                if (timeDiff < minDiffSky) {
-                    minDiffSky = timeDiff;
-                    closestValues.put("SKY", fcstValue);
-                }
-            } else if (category.equals("PTY") && fcstDate.equals(baseDate)) {
-                if (timeDiff < minDiffPty) {
-                    minDiffPty = timeDiff;
-                    closestValues.put("PTY", fcstValue);
-                }
-            } else if (List.of("POP", "WSD").contains(category) && fcstDate.equals(baseDate)) {
-                filteredValues.put(category, fcstValue);
-            } else if (category.equals("TMX") && fcstDate.equals(baseDate)) {
-                filteredValues.put(category, fcstValue);
-                tmxFound = true;
-            } else if (category.equals("TMN") && fcstDate.equals(baseDate)) {
-                filteredValues.put(category, fcstValue);
-                tmnFound = true;
+            if (category.equals("TMX")) {
+                tmxTmnData.put("TMX", fcstValue);
+            } else if (category.equals("TMN")) {
+                tmxTmnData.put("TMN", fcstValue);
             }
         }
+        System.out.println("Parsed TMX/TMN data: " + tmxTmnData);
+        return tmxTmnData;
+    }
 
-        if (!tmxFound || !tmnFound) {
-            for (JsonNode item : items) {
-                String fcstDate = item.path("fcstDate").asText();
-                String category = item.path("category").asText();
-                String fcstValue = item.path("fcstValue").asText();
+    private Map<String, String> parseRealTimeWeather(String response) throws Exception {
+        Map<String, String> realTimeData = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response);
+        JsonNode items = root.path("response").path("body").path("items").path("item");
 
-                if (category.equals("TMX") && fcstDate.equals(nextDay) && !filteredValues.containsKey("TMX")) {
-                    filteredValues.put("TMX", fcstValue);
-                } else if (category.equals("TMN") && fcstDate.equals(nextDay) && !filteredValues.containsKey("TMN")) {
-                    filteredValues.put("TMN", fcstValue);
-                }
+        for (JsonNode item : items) {
+            String category = item.path("category").asText();
+            String fcstValue = item.path("fcstValue").asText();
+
+            switch (category) {
+                case "TMP":
+                    realTimeData.put("TMP", fcstValue);
+                    break;
+                case "SKY":
+                    realTimeData.put("SKY", fcstValue);
+                    break;
+                case "POP":
+                    realTimeData.put("POP", fcstValue);
+                    break;
+                case "WSD":
+                    realTimeData.put("WSD", fcstValue);
+                    break;
             }
         }
-
-        filteredValues.putAll(closestValues);
-
-        return filteredValues;
+        System.out.println("Parsed real-time weather data: " + realTimeData);
+        return realTimeData;
     }
 }
