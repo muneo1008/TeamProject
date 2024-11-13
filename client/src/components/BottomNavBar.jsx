@@ -30,7 +30,7 @@ const BottomNavBar = () => {
             case '/snap':
                 setValue(1);
                 break;
-            case '/color':
+            case '/fashion-test':
                 setValue(2);
                 break;
             case '/mypage':
@@ -52,7 +52,7 @@ const BottomNavBar = () => {
 
     return (
         <>
-            {location.pathname === "/" || location.pathname === "/register" ? null : (
+            {location.pathname === "/" || location.pathname === "/register" || location.pathname === "/signupex"? null : (
                 <Box sx={{
                     position: 'fixed',
                     bottom: 0,
@@ -91,8 +91,8 @@ const BottomNavBar = () => {
                         />
                         <StyledBottomNavigationAction
                             component={Link}
-                            to="/color"
-                            label="컬러진단"
+                            to="/fashion-test"
+                            label="패션 테스트"
                             icon={<ChatIcon />}
                         />
                         <StyledBottomNavigationAction
