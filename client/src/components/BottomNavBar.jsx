@@ -2,7 +2,9 @@ import React, { useEffect } from 'react';
 import { BottomNavigation, BottomNavigationAction, Box } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import ChatIcon from '@mui/icons-material/Chat';
-import GavelIcon from '@mui/icons-material/Gavel';
+import CameraOutlinedIcon from '@mui/icons-material/CameraOutlined';
+
+
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import { Link, useLocation } from 'react-router-dom';
 import { styled } from '@mui/system';
@@ -10,7 +12,7 @@ import { styled } from '@mui/system';
 const StyledBottomNavigationAction = styled(BottomNavigationAction)(() => ({
     color: 'gray', // 기본 색상
     '&.Mui-selected': {
-        color: '#FE2EF7', // 선택된 상태에서의 색상
+        color: '#c283f1', // 선택된 상태에서의 색상
     },
 }));
 
@@ -85,7 +87,7 @@ const BottomNavBar = () => {
                             component={Link}
                             to="/snap"
                             label="스냅"
-                            icon={<GavelIcon />}
+                            icon={<CameraOutlinedIcon />}
                         />
                         <StyledBottomNavigationAction
                             component={Link}
