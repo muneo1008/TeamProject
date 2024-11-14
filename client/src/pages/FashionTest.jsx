@@ -4,20 +4,19 @@ import colorTest from '../assets/colorTest/colorTest.png'
 const FashionTest = ()=>{
     return(
         <Box sx={{width:'100%',
-            height:'100%',
+            minHeight:'100vh',
             bgcolor:'#E6E6FA'
         }}>
             <Typography
                 variant="h2"
                 color="textSecondary"
                 sx={{textAlign:'center',
-                    mt:2,
+                    pt:2,
                     mb:15}}>
                 패션 테스트
             </Typography>
             <Box sx={{
                 bgcolor:'#E6E6FA',
-                height:'20%',
                 borderTopLeftRadius:'100px',
                 boxShadow:'-2px -5px 2px rgba(0,0,0,0.1)',
                 pt:7,
