@@ -92,7 +92,7 @@ const Weather = () =>{
     }, [latitude, longitude]);
 
     return (
-        <Card sx={{ width: '100%',
+        <Card sx={{ width: '95%',
             height: '150px',
             mt: 1,
             backgroundImage: `url(${SnowImg})`,

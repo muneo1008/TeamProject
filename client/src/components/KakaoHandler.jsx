@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../api.jsx';
+import axios from 'axios';
 
 const KakaoHandler = () => {
     const navigate = useNavigate();
@@ -10,13 +10,13 @@ const KakaoHandler = () => {
         const code = new URL(window.location.href).searchParams.get("code");
 
         if (code) {
-            axios.post(`/member/kakao`, { code })
+            axios.post(`http://localhost:8080/api/member/kakao`, { code }, { WithCredentials: true })
                 .then(res => {
                     const { isMember, socialId, provider, email } = res.data;
                     if (isMember) {
                         navigate('/home');
                     } else {
-                        navigate('/home', { state: { socialId, provider, email } });
+                        navigate('/signupex', { state: { socialId, provider, email } });
                     }
                 })
                 .catch(error => {

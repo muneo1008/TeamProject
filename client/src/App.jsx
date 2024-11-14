@@ -2,7 +2,7 @@ import Login from './pages/Login.jsx';
 import Home from './pages/Home.jsx';
 import Register from './pages/Register.jsx';
 import './App.css'
-import {BrowserRouter as Router, Route, Routes, useNavigate} from "react-router-dom";
+import {Route, Routes, useNavigate} from "react-router-dom";
 import {Container, Toolbar} from "@mui/material";
 import Camera from "./components/Camera.jsx";
 import BottomNavBar from "./components/BottomNavBar.jsx";
@@ -13,9 +13,7 @@ import Snap from "./pages/Snap.jsx";
 import {useEffect, useState} from "react";
 import {userInfo} from './api.jsx';
 import {SetNickName, SetEmail, isLogin, setLatitude,setLongitude} from "./store.jsx";
-import SnapPage from './pages/SnapPage.jsx';
 import SingUpEx from "./pages/SingUpEx.jsx";
-
 
 function App() {
     const user = useSelector(state => state.user);
@@ -63,7 +61,6 @@ function App() {
       >
           <TopAppBar/>
           <Toolbar/>
-
               <Routes>
                   <Route path="/" element={<Login />} />
                   <Route path="/home" element={<Home/>} />
@@ -71,7 +68,6 @@ function App() {
                   <Route path="/color" element={<Camera/>} />
                   <Route path="/mypage" element={<MyPage/>}/>
                   <Route path="/snap" element={<Snap/>}/>
-                  <Route path="/snap/:id" element={<SnapPage/>}/>
               </Routes>
           <Toolbar/>
           <BottomNavBar/>

@@ -47,6 +47,25 @@ export const registerUser = async (email, password, nickname, gender, age, latit
     }
 }
 
+export const registerExUser = async (email, nickname, gender, age, latitude,longitude ,socialId, provider) => {
+    try{
+        const response = await api.post('/member/signup/ex',{
+            email:email,
+            nickname: nickname,
+            gender:gender,
+            age:age,
+            latitude:latitude,
+            longitude:longitude,
+            socialId: socialId,
+            provider: provider
+        });
+        return response.data;
+    }catch (error){
+        console.log(error);
+        throw error;
+    }
+}
+
 export const userInfo = async ()=>{
     try{
         const response = await api.get('/member/me');
@@ -68,7 +87,6 @@ export const weatherInfo = async (latitude, longitude)=>{
         console.log(error);
         throw error;
     }
-
 }
 
 export const sendCode = async (email)=>{

@@ -5,7 +5,7 @@ const CodyRecommend = () => {
         <>
             <Card
                 sx={{
-                    width: '100%',
+                    width: '95%',
                     height: '300px',
                     mt: 1,
                     borderRadius: '20px',
@@ -38,7 +38,7 @@ const CodyRecommend = () => {
             </Card>
             <Box
                 sx={{
-                    width: '100%',
+                    width: '95%',
                     maxWidth:'100%',
                     display: 'flex',
                     flexDirection: 'row',
