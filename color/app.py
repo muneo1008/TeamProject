@@ -9,7 +9,8 @@ from findPersonalColor import find_personal_color
 
 
 app = Flask(__name__)
-CORS(app)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+CORS(app, origins="http://localhost:5173", supports_credentials=True)
 
 @app.route('/')
 def index():
