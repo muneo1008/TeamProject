@@ -1,5 +1,5 @@
-import React from 'react';
-import { Route, Routes } from "react-router-dom";
+import React, {useEffect} from 'react';
+import {Route, Routes, useLocation} from "react-router-dom";
 import { Box, Toolbar, useMediaQuery } from "@mui/material";
 import Login from './pages/Login.jsx';
 import Home from './pages/Home.jsx';
@@ -15,7 +15,15 @@ import './App.css';
 
 function App() {
     const isDesktop = useMediaQuery('(min-width:768px)');
+    function ScrollToTop() {
+        const location = useLocation();
 
+        useEffect(() => {
+            window.scrollTo(0, 0);
+        }, [location]);
+
+        return null;
+    }
     return (
         <Box
             sx={{
@@ -23,23 +31,24 @@ function App() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 width: '100%',
-                minHeight: '100vh',
+
                 padding: 0,
                 margin: 0,
-                bgcolor: '#f0f0f0', // 전체 배경색 추가 (선택사항)
+                bgcolor: '#f0f0f0',
             }}
         >
             <Box
                 sx={{
                     width: isDesktop ? '600px' : '100%',
-                    minHeight: '100vh',
                     boxShadow: isDesktop ? 3 : 0,
                     bgcolor: '#fff',
                     padding: 0,
                     margin: 0,
+                    minHeight:'100vh',
                     alignItems: 'center',
                 }}
             >
+                <ScrollToTop />
                 <TopAppBar />
                 <Toolbar />
                 <Routes>
