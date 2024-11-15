@@ -42,7 +42,8 @@ const Login = () => {
         }
     };
     return (
-        <>
+        <Box
+        sx={{padding:2}}>
             <Typography variant="h5" align="center" gutterBottom sx={{marginTop:8}}>
                 로그인
             </Typography>
@@ -86,7 +87,7 @@ const Login = () => {
                 >
                 </Button>
             </Box>
-        </>
+        </Box>
 
     );
 };
