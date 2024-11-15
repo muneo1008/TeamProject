@@ -1,7 +1,11 @@
 import {Box, Card, CardContent, Typography,} from "@mui/material";
-import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import SnowImg from '../assets/weatherImg/snow.png';
+import CloudyImg from '../assets/weatherImg/cloudy.png';
+import RainImg from '../assets/weatherImg/rain.png';
+import ShowerImg from '../assets/weatherImg/shower.png';
+import SnowRainImg from '../assets/weatherImg/snowRain.png';
+import SunImg from '../assets/weatherImg/sun.png';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import {useEffect, useState} from "react";
 import {weatherInfo} from "../api.jsx";
@@ -12,6 +16,11 @@ const Weather = () =>{
     const [PTY, setPTY] = useState();
     const [SKY, setSKY] = useState();
     const [TMP, setTMP] = useState();
+    const [POP, setPOP] = useState();
+    const [TMN, setTMN] = useState();
+    const [TMX, setTMX] = useState();
+    const [WSD, setWSD] = useState();
+
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
     const SkyToText = (value)=>{
@@ -30,25 +39,30 @@ const Weather = () =>{
         }
     }
     const PtyToIcon = (value)=>{
-        // 백그라운드 이미지 설정도 추가해야함
         switch (value) {
             case '0':
                 setPTY(<WbSunnyIcon fontSize="medium"/>);
+                setBgImg(SunImg);
                 break;
             case '1':
                 setPTY('비');
+                setBgImg(RainImg);
                 break;
             case '2':
                 setPTY('비/눈');
+                setBgImg(SnowRainImg);
                 break;
             case '3':
                 setPTY(<AcUnitIcon fontSize="medium"/>);
+                setBgImg(SnowImg);
                 break;
             case '4':
                 setPTY('소나기');
+                setBgImg(ShowerImg);
                 break;
             default:
-                setSKY('정보 없음')
+                setSKY('정보 없음');
+                setBgImg(CloudyImg);
         }
     }
     const getLocation = () => {
@@ -74,7 +88,12 @@ const Weather = () =>{
             console.log(result);
             PtyToIcon(result.values.PTY);
             setTMP(result.values.TMP);
-            SkyToText(result.values.SKY)
+            SkyToText(result.values.SKY);
+            setTMN(result.values.TMN);
+            setTMX(result.values.TMX);
+            setPOP(result.values.POP);
+            setWSD(result.values.WSD);
+
             setLoading(false);
         }catch (error){
             console.log('날씨 정보 불러오기 실패: ', error);
@@ -92,18 +111,20 @@ const Weather = () =>{
     }, [latitude, longitude]);
 
     return (
-        <Card sx={{ width: '95%',
+        <Card sx={{
+            width: '95%',
             height: '150px',
             mt: 1,
-            backgroundImage: `url(${SnowImg})`,
-            borderRadius: '20px',
+            backgroundImage: `url(${bgImg})`,
+            borderRadius:'10px',
             backgroundPosition: 'center',
-            backgroundSize: 'cover',
+            backgroundSize: '115%',
             backgroundRepeat: 'no-repeat',
-
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between' }}>
+            justifyContent: 'space-between'
+
+        }}>
             {loading ? (
                 <Box sx={{
                     display: 'flex',
@@ -138,14 +159,13 @@ const Weather = () =>{
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'flex-end',
+                            justifyContent: 'flex-start',
                             mb: 1,
-                            mr: 2,
+                            ml: 2,
                         }}
                     >
-                        <LocationOnIcon fontSize="small" />
                         <Typography fontSize="small" fontWeight="bold" sx={{ ml: 0.5 }}>
-                            지역이름
+                            최고/최저: {TMX}/{TMN} 강수확률: {POP}% 풍속: {WSD}
                         </Typography>
                     </Box>
                 </>
