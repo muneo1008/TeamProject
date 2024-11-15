@@ -7,6 +7,8 @@ import ShowerImg from '../assets/weatherImg/shower.png';
 import SnowRainImg from '../assets/weatherImg/snowRain.png';
 import SunImg from '../assets/weatherImg/sun.png';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
+import CloudIcon from '@mui/icons-material/Cloud';
+import ShowerIcon from '@mui/icons-material/Shower';
 import {useEffect, useState} from "react";
 import {weatherInfo} from "../api.jsx";
 const Weather = () =>{
@@ -20,19 +22,24 @@ const Weather = () =>{
     const [TMN, setTMN] = useState();
     const [TMX, setTMX] = useState();
     const [WSD, setWSD] = useState();
-
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
     const SkyToText = (value)=>{
         switch (value) {
             case '1':
                 setSKY('맑음');
+                setBgImg(SunImg);
+                setPTY(<WbSunnyIcon fontSize="medium"/>);
                 break;
             case '3':
                 setSKY('구름많음');
+                setBgImg(CloudyImg);
+                setPTY(<CloudIcon fontSize="medium"/>);
                 break;
             case '4':
                 setSKY('흐림');
+                setBgImg(CloudyImg);
+                setPTY(<CloudIcon fontSize="medium"/>);
                 break;
             default:
                 setSKY('정보 없음')
@@ -41,15 +48,13 @@ const Weather = () =>{
     const PtyToIcon = (value)=>{
         switch (value) {
             case '0':
-                setPTY(<WbSunnyIcon fontSize="medium"/>);
-                setBgImg(SunImg);
                 break;
             case '1':
-                setPTY('비');
+                setPTY(<ShowerIcon/>);
                 setBgImg(RainImg);
                 break;
             case '2':
-                setPTY('비/눈');
+                setPTY(<ShowerIcon/>);
                 setBgImg(SnowRainImg);
                 break;
             case '3':
@@ -57,12 +62,11 @@ const Weather = () =>{
                 setBgImg(SnowImg);
                 break;
             case '4':
-                setPTY('소나기');
+                setPTY(<ShowerIcon/>);
                 setBgImg(ShowerImg);
                 break;
             default:
                 setSKY('정보 없음');
-                setBgImg(CloudyImg);
         }
     }
     const getLocation = () => {
