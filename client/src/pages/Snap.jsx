@@ -1,6 +1,8 @@
-import {Avatar, Box, Typography} from "@mui/material";
+import { Avatar, Box, Typography, IconButton } from "@mui/material";
 import testImg from '../assets/test.jpg';
-const Snap = ()=>{
+import AddIcon from '@mui/icons-material/Add';
+
+const Snap = () => {
     // 테스트용
     const posts = Array(5).fill({
         imgSrc: `${testImg}`,
@@ -9,17 +11,20 @@ const Snap = ()=>{
         timeElapsed: "5분 전",
     });
 
+    const handleAddClick = () => {
+        // 스냅 추가 버튼
+        console.log("스냅 추가 버튼 누름");
+    };
+
     return (
-        <Box sx={{ position: 'relative', width: '100%'}}>
+        <Box sx={{ position: 'relative', width: '100%' }}>
             {posts.map((post, index) => (
                 <Box key={index} sx={{ position: 'relative', mt: 2 }}>
                     <Box
                         component="img"
                         src={post.imgSrc}
-                        alt="게시물 이미지"
-                        sx={{ width: '100%', borderRadius: 2}}
+                        sx={{ width: '100%', height: '40vh', borderRadius: 2 }}
                     />
-
                     <Box
                         sx={{
                             position: 'absolute',
@@ -41,7 +46,27 @@ const Snap = ()=>{
                     </Box>
                 </Box>
             ))}
+
+            <IconButton
+                onClick={handleAddClick}
+                sx={{
+                    position: '',
+                    bottom: 70,
+                    right: 16,
+                    backgroundColor: '#c283f1',
+                    color: 'white',
+                    '&:hover': {
+                        backgroundColor: '#9a4cc2',
+                    },
+                    boxShadow: 2,
+                    borderRadius: '50%',
+                    padding: 2,
+                }}
+            >
+                <AddIcon sx={{ fontSize: 25 }} />
+            </IconButton>
         </Box>
     );
 }
+
 export default Snap;
