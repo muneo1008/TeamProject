@@ -27,7 +27,8 @@ def find_personal_color(colors):
             [170, 180, 200], [180, 190, 210], [200, 200, 230]
         ],
         "여름 뮤트 (Muted Summer)": [
-            [140, 160, 170], [150, 170, 180], [170, 190, 200]
+            [140, 160, 170], [150, 170, 180], [170, 190, 200],
+            [180, 200, 210], [160, 180, 190], [150, 160, 190]
         ],
         "가을 뮤트 (Muted Autumn)": [
             [160, 130, 100], [170, 140, 120], [190, 160, 140]
@@ -49,19 +50,21 @@ def find_personal_color(colors):
         ]
     }
 
-    # 각 시즌과의 최소 거리 구하기
-    min_distance = float('inf')
-    best_season = None
+    # 가중치 부여 (피부: 0.4, 입술: 0.3, 눈: 0.2)
+    weights = [0.4, 0.3, 0.2, 0.1]
 
-    # 추출한 색상 목록에서 색상만 추출
-    extracted_colors = [tuple(map(int, color)) for color in colors]
+    best_season = None
+    min_weighted_distance = float('inf')
 
     for season, palette in seasonal_palettes.items():
+        total_distance = 0
         for season_color in palette:
-            for extracted_color in extracted_colors:
-                distance = color_distance(extracted_color, season_color)
-                if distance < min_distance:
-                    min_distance = distance
-                    best_season = season
+            for idx, extracted_color in enumerate(colors):
+                distance = weights[idx] * color_distance(extracted_color, season_color)
+                total_distance += distance
+
+        if total_distance < min_weighted_distance:
+            min_weighted_distance = total_distance
+            best_season = season
 
     return best_season
