@@ -1,15 +1,15 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import io
 import cv2
 import numpy as np
-
 from findFacdColor import extract_face_colors
 from findPersonalColor import find_personal_color
 
-
 app = Flask(__name__)
-CORS(app)
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+CORS(app, origins="http://localhost:5173", supports_credentials=True)
 
 @app.route('/')
 def index():
@@ -33,11 +33,11 @@ def analyze_color():
             if not extracted_colors:
                 return jsonify({'error': '얼굴을 인식할 수 없습니다. 다른 이미지를 시도해 주세요.'}), 400
 
-            print('추출한 얼굴 색상: ',extracted_colors)
+            print('추출한 색상: ', extracted_colors)
 
             # 퍼스널 컬러 분석
             result = find_personal_color(extracted_colors)
-            print('퍼스널 컬러: ',result)
+            print('퍼스널 컬러: ', result)
             return jsonify({'personal_color': result})
 
         return jsonify({'error': 'No image provided'}), 400

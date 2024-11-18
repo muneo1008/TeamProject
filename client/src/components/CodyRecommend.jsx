@@ -8,7 +8,7 @@ const CodyRecommend = () => {
                     width: '95%',
                     height: '300px',
                     mt: 1,
-                    borderRadius: '20px',
+                    borderRadius: '12px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',

@@ -3,9 +3,9 @@ import {Avatar, Box, Button, IconButton, Paper, Stack, Typography} from "@mui/ma
 import {removeCookies} from "../Cookie.jsx";
 import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
-import SettingsIcon from '@mui/icons-material/Settings';
+import Profile from "../components/Profile.jsx"
+import UserSnap from "../components/UserSnap.jsx";
 
-import Account from '../components/Account.jsx'
 const MyPage = ()=>{
 
     const navigate = useNavigate();
@@ -18,9 +18,16 @@ const MyPage = ()=>{
         alert('로그아웃 완료');
     }
     return(
-        <>
-            <Account/>
-        </>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                minHeight: '100vh',
+            }}>
+            <Profile/>
+            <UserSnap/>
+        </Box>
     );
 }
 export default MyPage;
