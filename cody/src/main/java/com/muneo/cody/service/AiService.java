@@ -3,12 +3,8 @@ package com.muneo.cody.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -26,9 +22,6 @@ public class AiService {
     @Value("${openai.api.url}")
     private String openAiApiUrl;
 
-    @Autowired
-    private CrawlingService crawlingService;
-
     private static final Map<String, List<String>> maleOptions = Map.of(
             "상의", List.of("니트", "티셔츠", "후드"),
             "하의", List.of("청바지", "면바지", "슬랙스"),
@@ -37,26 +30,26 @@ public class AiService {
     );
 
     private static final Map<String, List<String>> femaleOptions = Map.of(
-            "상의", List.of("블라우스", "티셔츠", "니트"),
-            "하의", List.of("스커트", "청바지", "슬랙스"),
-            "아우터", List.of("코트", "가디건", "숏패딩"),
-            "신발", List.of("플랫슈즈", "힐", "부츠", "운동화")
+            "상의", List.of("블라우스", "티셔츠", "맨투맨"),
+            "하의", List.of("스커트", "데님팬츠", "코튼팬츠"),
+            "아우터", List.of("코트", "가디건", "트렌치코트"),
+            "신발", List.of("스니커즈", "힐", "부츠", "운동화")
     );
 
     public String getWeatherComment(String temperature, String weatherCondition, String maxTemp, String minTemp, String rain) {
         String prompt = String.format(
-                "오늘의 날씨에 대한 코멘트를 알려주세요. 강수확률과 하늘 상태, 최고, 최저, 현재 기온에 대한 코멘트를 포함해 주세요. 답변 형식은 느낌표(!)로 감싸서 '!(코멘트)!' 형식으로 답변해 주세요. 현재 기온은 %s°C, 날씨 상태는 %s, 최고기온은 %s°C, 최저기온은 %s°C, 강수확률은 %s%%입니다.",
+                "오늘의 날씨에 대한 코멘트를 알려줘. 강수확률과 하늘 상태, 최고, 최저, 현재 기온에 대한 코멘트를 포함해. 답변 형식은 느낌표(!)로 감싸서 '!(코멘트)!' 형식으로 답변해 주고 코멘트는 50이상 70자 이하로 하고 끝에 이모티콘을 달아줘. 현재 기온은 %s°C, 날씨 상태는 %s, 최고기온은 %s°C, 최저기온은 %s°C, 강수확률은 %s%%",
                 temperature, weatherCondition, maxTemp, minTemp, rain
         );
         return sendOpenAiRequest(prompt, "!");
     }
 
-    public Map<String, Map<String, String>> getOutfitRecommendation(int age, String gender, String temperature, String weatherCondition, String maxTemp, String minTemp) {
+    public Map<String, String> getOutfitRecommendation(int age, String gender, String temperature, String weatherCondition, String maxTemp, String minTemp) {
         Map<String, List<String>> options = gender.equalsIgnoreCase("남성") ? maleOptions : femaleOptions;
 
         String prompt = String.format(
-                "나이는 %d세, 성별은 %s, 현재 기온은 %s°C, 날씨 상태는 %s, 최고기온은 %s°C, 최저기온은 %s°C입니다. " +
-                        "아래 항목에서 상의, 하의, 아우터, 신발을 선택하여 JSON 형식으로 추천해 주세요. " +
+                "나이는 %d세, 성별은 %s, 현재 기온은 %s°C, 날씨 상태는 %s, 최고기온은 %s°C, 최저기온은 %s°C. " +
+                        "아래 항목에서 상의, 하의, 아우터, 신발을 선택하여 JSON 형식으로 추천해" +
                         "예: { \"상의\": \"아이템\", \"하의\": \"아이템\", \"아우터\": \"아이템\", \"신발\": \"아이템\" }\n\n" +
                         "상의 옵션: %s\n" +
                         "하의 옵션: %s\n" +
@@ -71,25 +64,13 @@ public class AiService {
 
         JsonNode recommendation = sendOpenAiRequestForJson(prompt);
 
-        Map<String, Map<String, String>> result = new HashMap<>();
+        Map<String, String> result = new HashMap<>();
         if (recommendation != null) {
-            recommendation.fields().forEachRemaining(entry -> {
-                String item = entry.getValue().asText();
-                String imageUrl = crawlingService.searchImageUrl(item);
-
-                Map<String, String> itemData = new HashMap<>();
-                itemData.put("item", item);
-                itemData.put("imageUrl", imageUrl);
-
-                result.put(entry.getKey(), itemData);
-            });
+            recommendation.fields().forEachRemaining(entry -> result.put(entry.getKey(), entry.getValue().asText()));
         }
-
         return result;
     }
 
-
-    // Ai 답변 추출 delimiter는 감싼 느낌표
     private String sendOpenAiRequest(String prompt, String delimiter) {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model", "gpt-3.5-turbo");
