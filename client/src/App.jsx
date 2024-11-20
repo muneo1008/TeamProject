@@ -12,6 +12,7 @@ import KakaoHandler from "./components/KakaoHandler.jsx";
 import TopAppBar from "./components/TopAppBar.jsx";
 import BottomNavBar from "./components/BottomNavBar.jsx";
 import './App.css';
+import SnapDetail from "./pages/SnapDetail.jsx";
 
 function App() {
     const isDesktop = useMediaQuery('(min-width:768px)');
@@ -28,10 +29,10 @@ function App() {
         <Box
             sx={{
                 display: 'flex',
-                justifyContent: 'center',
+                flexDirection:"column",
                 alignItems: 'center',
                 width: '100%',
-
+                justifyContent:'center',
                 padding: 0,
                 margin: 0,
                 bgcolor: '#f0f0f0',
@@ -50,7 +51,6 @@ function App() {
             >
                 <ScrollToTop />
                 <TopAppBar />
-                <Toolbar />
                 <Routes>
                     <Route path="/" element={<Login />} />
                     <Route path="/home" element={<Home />} />
@@ -58,10 +58,10 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/mypage" element={<MyPage />} />
                     <Route path="/snap" element={<Snap />} />
+                    <Route path="/snap/:id" element={<SnapDetail />} />
                     <Route path='/fashion-test' element={<FashionTest />} />
                     <Route path="/signupex" element={<SingUpEx />} />
                 </Routes>
-                <Toolbar />
                 <BottomNavBar />
             </Box>
         </Box>
