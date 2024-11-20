@@ -46,6 +46,7 @@ const Snap = () => {
 
     const handleLikeToggle = (e,id) => {
         e.preventDefault();
+        e.stopPropagation();
         setPosts((prevPosts) =>
             prevPosts.map((post) =>
                 post.id === id ? { ...post, isLiked: !post.isLiked } : post
