@@ -227,8 +227,8 @@ const Register = () =>{
                             onChange={(e) => setGender(e.target.value)}
                             label="성별"
                         >
-                            <MenuItem value="male">남성</MenuItem>
-                            <MenuItem value="female">여성</MenuItem>
+                            <MenuItem >남성</MenuItem>
+                            <MenuItem >여성</MenuItem>
                         </Select>
                     </FormControl>
 
