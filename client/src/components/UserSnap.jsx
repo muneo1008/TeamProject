@@ -21,7 +21,6 @@ const UserSnap = () => {
                     value={selectedTab}
                     onChange={handleTabChange}
                     centered
-                    disableRipple
                     indicatorColor="none"
                     sx={{
                         borderBottom: '1px solid lightgray',
