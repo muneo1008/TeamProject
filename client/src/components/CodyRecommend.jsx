@@ -15,7 +15,7 @@ const CodyRecommend = (props) => {
         try {
             const result = await getCodyRecommend(
                 user.age,
-                "남성",
+                user.gender,
                 props.WeatherData.TMP,
                 props.WeatherData.SKY,
                 props.WeatherData.TMX,

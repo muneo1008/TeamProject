@@ -13,9 +13,13 @@ import TopAppBar from "./components/TopAppBar.jsx";
 import BottomNavBar from "./components/BottomNavBar.jsx";
 import './App.css';
 import SnapDetail from "./pages/SnapDetail.jsx";
+import {userInfo} from "./api.jsx";
+import {isLogin, SetAge,SetGender, SetNickName} from "./store.jsx";
+import {useDispatch} from "react-redux";
 
 function App() {
     const isDesktop = useMediaQuery('(min-width:768px)');
+    const dispatch = useDispatch();
     function ScrollToTop() {
         const location = useLocation();
 
@@ -25,6 +29,22 @@ function App() {
 
         return null;
     }
+
+    const getUserInfo = async () => {
+        try {
+            const result = await userInfo();
+            console.log(result);
+            await dispatch(isLogin(true));
+            await dispatch(SetNickName(result.nickname));
+            await dispatch(SetAge(result.age));
+            await dispatch(SetGender(result.gender))
+        }catch (error){
+            console.log(error);
+        }
+    }
+    useEffect(() => {
+        getUserInfo();
+    }, []);
     return (
         <Box
             sx={{
