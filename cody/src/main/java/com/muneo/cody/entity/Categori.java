@@ -10,6 +10,6 @@ public class Categori {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer categoriId;
 
-    @Column(nullable = false)
+    @Column(length = 50, nullable = false)
     private String categoryName;
 }

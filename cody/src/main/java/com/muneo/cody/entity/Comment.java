@@ -28,3 +28,4 @@ public class Comment {
 
     private LocalDateTime updateDate;
 }
+
