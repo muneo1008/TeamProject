@@ -253,6 +253,9 @@ public class WeatherService {
                 case "WSD":
                     realTimeData.put("WSD", fcstValue);
                     break;
+                case "PTY":
+                    realTimeData.put("PTY", fcstValue);
+                    break;
             }
         }
         System.out.println("Parsed real-time weather data: " + realTimeData);

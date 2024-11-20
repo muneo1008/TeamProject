@@ -1,12 +1,25 @@
 
-import { useEffect , useState} from 'react';
+import { useState} from 'react';
 import {Box, TextField, Button, Typography} from '@mui/material';
 import {useNavigate} from "react-router-dom";
+import {loginUser} from '../api.jsx'
+import {useDispatch} from "react-redux";
+import {isLogin, SetAge,SetGender, SetNickName} from "../store.jsx";
+import BasicBtn from "../components/BasicBtn.jsx";
+import KakaoLoginImage from "../assets/kakao_login_medium_wide.png"
 
 const Login = () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    const CLIENT_ID = import.meta.env.VITE_REST_API_KEY;
+    const REDIRECT_URI = import.meta.env.VITE_REDIRECT_URL;
+
+    const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+
+
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
     };
@@ -15,14 +28,27 @@ const Login = () => {
         setPassword(event.target.value);
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log("Logging in with:", { email, password });
-        //로그인 요청
+        try{
+            const result = await loginUser(email, password);
+            console.log('로그인 성공' , result);
+            alert('로그인 성공');
+            await dispatch(isLogin(true));
+            await dispatch(SetNickName(result.nickname));
+            await dispatch(SetAge(result.age));
+            await dispatch(SetGender(result.gender))
+            navigate('/home');
+        }catch (err){
+            console.log('로그인 실패: ',err);
+            alert('이메일 혹은 비밀번호를 다시 확인해주세요.')
+            dispatch(isLogin(false));
+        }
     };
     return (
-        <>
-            <Typography variant="h5" align="center" gutterBottom>
+        <Box
+        sx={{padding:2}}>
+            <Typography variant="h5" align="center" gutterBottom sx={{marginTop:8}}>
                 로그인
             </Typography>
             <Box component="form" onSubmit={handleSubmit}>
@@ -45,21 +71,27 @@ const Login = () => {
                     onChange={handlePasswordChange}
                 />
                 <Box display="flex" justifyContent="flex-end" mt={1}>
-                    <Button variant="text" onClick={() => navigate('/register')}>
+                    <Button variant="text" color="black" onClick={() => navigate('/register')}>
                         계정이 없으신가요?
                     </Button>
                 </Box>
-                <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                    로그인
-                </Button>
-                <Button variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                    카카오로 로그인
-                </Button>
-                <Button variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
-                    구글로 로그인
+                <BasicBtn text = "로그인" bgColor='black' textColor='white' />
+                <Button
+                    component="a"
+                    href={KAKAO_AUTH_URL}
+                    sx={{
+                        width: '100%',
+                        height: '36.5px',
+                        backgroundImage: `url(${KakaoLoginImage})`,
+                        borderRadius:'12px',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        mt:2
+                    }}
+                >
                 </Button>
             </Box>
-        </>
+        </Box>
 
     );
 };

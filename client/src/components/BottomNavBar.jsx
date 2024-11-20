@@ -1,95 +1,110 @@
-import React, {useEffect} from 'react';
-import {BottomNavigation, BottomNavigationAction, Box} from '@mui/material';
+import React, { useEffect } from 'react';
+import { BottomNavigation, BottomNavigationAction, Box } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import ChatIcon from '@mui/icons-material/Chat';
-import GavelIcon from '@mui/icons-material/Gavel';
+import CameraOutlinedIcon from '@mui/icons-material/CameraOutlined';
+
+
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
-import {Link, useLocation} from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { styled } from '@mui/system';
+
+const StyledBottomNavigationAction = styled(BottomNavigationAction)(() => ({
+    color: 'gray', // 기본 색상
+    '&.Mui-selected': {
+        color: '#c283f1', // 선택된 상태에서의 색상
+    },
+}));
 
 const BottomNavBar = () => {
     const location = useLocation();
     const [value, setValue] = React.useState(() => {
         return localStorage.getItem('bottomNavValue') ? parseInt(localStorage.getItem('bottomNavValue')) : 0;
     });
+
     useEffect(() => {
         switch (location.pathname) {
-            case '/':
+            case '/home':
                 setValue(0);
                 break;
-            case '/login':
+            case '/snap':
                 setValue(1);
                 break;
-            case '/color':
+            case '/fashion-test':
                 setValue(2);
                 break;
-            case '/account':
+            case '/mypage':
                 setValue(3);
                 break;
             default:
-                setValue(4); // 기본값 설정
+                setValue(4);
                 break;
         }
     }, [location.pathname]);
+
     useEffect(() => {
         localStorage.setItem('bottomNavValue', value);
     }, [value]);
+
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
     return (
-        <Box sx={{
-            position: 'fixed',
-            bottom: 0,
-            width: '100%',
-            maxWidth: '600px',
-            borderColor: '#9a9696',
-            boxShadow: '0px -2px 5px rgba(0, 0, 0, 0.2)',
-            '@media (max-width: 768px)': {
-                maxWidth: '100%',
-                padding: 0,
-            },
-        }}>
-            <BottomNavigation
-                value={value}
-                onChange={handleChange}
-                showLabels
-                sx={{
+        <>
+            {location.pathname === "/" || location.pathname === "/register" || location.pathname === "/signupex"? null : (
+                <Box sx={{
+                    position: 'fixed',
+                    bottom: 0,
                     width: '100%',
-                    backgroundColor: 'white',
+                    maxWidth: '600px',
+                    borderColor: '#9a9696',
+                    boxShadow: '0px -2px 5px rgba(0, 0, 0, 0.2)',
                     '@media (max-width: 768px)': {
                         maxWidth: '100%',
+                        padding: 0,
                     },
-                }}
-            >
-                <BottomNavigationAction
-                    component={Link}
-                    to="/"
-                    label="홈"
-                    icon={<HomeIcon />}
-                />
-                <BottomNavigationAction
-                    component={Link}
-                    to="/login"
-                    label="경매"
-                    icon={<GavelIcon/>}
-                />
-                <BottomNavigationAction
-                    component={Link}
-                    to="/color"
-                    label="채팅"
-                    icon={<ChatIcon/>}
-                />
-                <BottomNavigationAction
-                    component={Link}
-                    to="/account"
-                    label="내 정보"
-                    icon={<PermIdentityIcon/>}
-                />
-            </BottomNavigation>
-        </Box>
-
-
+                }}>
+                    <BottomNavigation
+                        value={value}
+                        onChange={handleChange}
+                        showLabels
+                        sx={{
+                            width: '100%',
+                            backgroundColor: 'white',
+                            '@media (max-width: 768px)': {
+                                maxWidth: '100%',
+                            },
+                        }}
+                    >
+                        <StyledBottomNavigationAction
+                            component={Link}
+                            to="/home"
+                            label="홈"
+                            icon={<HomeIcon />}
+                        />
+                        <StyledBottomNavigationAction
+                            component={Link}
+                            to="/snap"
+                            label="스냅"
+                            icon={<CameraOutlinedIcon />}
+                        />
+                        <StyledBottomNavigationAction
+                            component={Link}
+                            to="/fashion-test"
+                            label="패션 테스트"
+                            icon={<ChatIcon />}
+                        />
+                        <StyledBottomNavigationAction
+                            component={Link}
+                            to="/mypage"
+                            label="내 정보"
+                            icon={<PermIdentityIcon />}
+                        />
+                    </BottomNavigation>
+                </Box>
+            )}
+        </>
     );
 };
 
