@@ -29,7 +29,7 @@ export const loginUser = async (email, password) => {
     }
 }
 
-export const registerUser = async (email, password, nickname, gender, age, latitude,longitude ) => {
+export const registerUser = async (email, password, nickname, gender, age, latitude,longitude,profileImageUrl ) => {
     try{
         const response = await api.post('/member/signup',{
             email:email,
@@ -38,7 +38,8 @@ export const registerUser = async (email, password, nickname, gender, age, latit
             gender:gender,
             age:age,
             latitude:latitude,
-            longitude:longitude
+            longitude:longitude,
+            profileImageUrl:profileImageUrl
         });
         return response.data;
     }catch (error){
