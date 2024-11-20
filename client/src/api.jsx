@@ -114,3 +114,35 @@ export const verifyCode = async (email, code)=>{
         throw error;
     }
 }
+
+export const getCodyRecommend = async (age, gender, temperature, weatherCondition, maxTemp, minTemp,rain)=>{
+    try{
+        const response = await api.post('/ai-fashion',{
+            age:age,
+            gender:gender,
+            temperature:temperature,
+            weatherCondition:weatherCondition,
+            maxTemp:maxTemp,
+            minTemp:minTemp,
+            rain:rain,
+        })
+        return response.data;
+    }catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const getCodyImg = async (category,item,gender)=>{
+    try {
+        const response = await api.post('/crawling',{
+            category:category,
+            item:item,
+            gender:gender
+        })
+        return response.data;
+    }catch (error){
+        console.log(error);
+        throw error;
+    }
+}
