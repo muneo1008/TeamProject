@@ -1,4 +1,4 @@
-import {Box, Card, CardContent, Typography,} from "@mui/material";
+import {Box, Card, CardContent, CircularProgress, Typography,} from "@mui/material";
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import SnowImg from '../assets/weatherImg/snow.png';
 import CloudyImg from '../assets/weatherImg/cloudy.png';
@@ -11,7 +11,7 @@ import CloudIcon from '@mui/icons-material/Cloud';
 import ShowerIcon from '@mui/icons-material/Shower';
 import {useEffect, useState} from "react";
 import {weatherInfo} from "../api.jsx";
-const Weather = () =>{
+const Weather = (props) =>{
     console.log('weather on')
     const [loading, setLoading] = useState(true);
     const [bgImg, setBgImg] = useState();
@@ -24,6 +24,7 @@ const Weather = () =>{
     const [WSD, setWSD] = useState();
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
+
     const SkyToText = (value)=>{
         switch (value) {
             case '1':
@@ -88,16 +89,18 @@ const Weather = () =>{
     const getWeather = async ()=>{
         try{
             const result = await weatherInfo(latitude, longitude);
-            console.log('전역 위치:',latitude);
-            console.log(result);
             PtyToIcon(result.values.PTY);
             setTMP(result.values.TMP);
+
             SkyToText(result.values.SKY);
             setTMN(result.values.TMN);
-            setTMX(result.values.TMX);
-            setPOP(result.values.POP);
-            setWSD(result.values.WSD);
 
+            setTMX(result.values.TMX);
+
+            setPOP(result.values.POP);
+
+            setWSD(result.values.WSD);
+            props.setWeatherData(result.values);
             setLoading(false);
         }catch (error){
             console.log('날씨 정보 불러오기 실패: ', error);
@@ -130,50 +133,81 @@ const Weather = () =>{
 
         }}>
             {loading ? (
-                <Box sx={{
-                    display: 'flex',
-                    flex:2,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    mb: 1,
-                    ml: 2
-                }}>
-                    <Typography variant='h5'>
-                        날씨 정보 불러오는 중...
-                    </Typography>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flex: 2,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        mb: 1,
+                        ml: 2,
+                    }}
+                >
+                    <CircularProgress color="primary" sx={{ mb: 2 }} />
                 </Box>
-            ):(
+            ) : (
                 <>
                     <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-end'}}>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
                             {PTY}
-                            <Typography fontSize="large" fontWeight='bold' sx={{ mx: 1, lineHeight:1}}>
+                            <Typography
+                                fontSize="large"
+                                fontWeight="bold"
+                                sx={{ mx: 1, lineHeight: 1 }}
+                            >
                                 {SKY}
                             </Typography>
                         </Box>
                     </CardContent>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 ,ml:2}}>
-                        <Typography variant='h3'>
-                            {TMP}°
-                        </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, ml: 2 }}>
+                        <Typography variant="h3">{TMP}°</Typography>
                     </Box>
+
                     <Box
                         sx={{
                             display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'flex-start',
+                            flexDirection: 'rows',
+                            alignItems: 'flex-start',
                             mb: 1,
                             ml: 2,
+                            gap: 1,
                         }}
                     >
-                        <Typography fontSize="small" fontWeight="bold" sx={{ ml: 0.5 }}>
-                            최고/최저: {TMX}/{TMN} 강수확률: {POP}% 풍속: {WSD}
-                        </Typography>
+                        {/* 최고/최저 */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body1" fontWeight="bold">
+                                🌡️ 최고/최저:
+                            </Typography>
+                            <Typography variant="body1" fontWeight="500">
+                                {TMX}° / {TMN}°
+                            </Typography>
+                        </Box>
+
+                        {/* 강수확률 */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body1" fontWeight="bold">
+                                🌧️ 강수확률:
+                            </Typography>
+                            <Typography variant="body1" fontWeight="500">
+                                {POP}%
+                            </Typography>
+                        </Box>
+
+                        {/* 풍속 */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body1" fontWeight="bold">
+                                💨 풍속:
+                            </Typography>
+                            <Typography variant="body1" fontWeight="500">
+                                {WSD}m/s
+                            </Typography>
+                        </Box>
                     </Box>
                 </>
-                )}
+            )}
+
         </Card>
 
     );

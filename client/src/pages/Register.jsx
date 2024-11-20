@@ -1,4 +1,5 @@
 import {
+    Avatar,
     Box, Button,
     FormControl, IconButton, InputAdornment,
     InputLabel, MenuItem,
@@ -24,6 +25,8 @@ const Register = () =>{
     const [error, setError] = useState(null);
     const [age, setAge] = useState(0);
     const [emailVaild, setEmailVaild] = useState(false);
+    const [profileImage, setProfileImage] = useState(null); // 프로필 이미지 상태 추가
+    const [previewImage, setPreviewImage] = useState(null);
 
     const navigate = useNavigate();
 
@@ -53,11 +56,13 @@ const Register = () =>{
                 const result = await registerUser(email, password, nickName,
                     gender, age, location.latitude,location.longitude);
                 console.log('회원가입 성공: ',result);
+                alert('회원가입 성공');
                 navigate('/');
             }else{
                 alert('이메일 인증이 필요합니다.')
             }
         }catch (err){
+            alert('회원가입 실패');
             console.log('회원가입 실패: ',err);
             console.log({email,password,nickName,age,gender});
             console.log(location.latitude)
@@ -65,6 +70,24 @@ const Register = () =>{
         }
     };
 
+    const handleImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setProfileImage(file);
+
+            // FileReader를 사용하여 미리보기 이미지 설정
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setPreviewImage(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleImageRemove = () => {
+        setProfileImage(null);
+        setPreviewImage(null);
+    };
     useEffect(() => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -90,7 +113,7 @@ const Register = () =>{
             <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
                 <Stack spacing={2} sx={{ marginLeft: '10px', marginRight: '10px' }}>
                     {/* Email input field */}
-                    <FormControl variant="outlined" fullWidth>
+                    <FormControl variant="outlined" fullWidth disabled={emailVaild}>
                         <InputLabel htmlFor="outlined-adornment-email">이메일</InputLabel>
                         <OutlinedInput
                             id="outlined-adornment-email"
@@ -98,10 +121,12 @@ const Register = () =>{
                             type="email"
                             value={email}
                             onChange={(e) => { setEmail(e.target.value) }}
+
                         />
                     </FormControl>
                     {/* Button to send email verification code */}
                     <Button
+                        disabled={emailVaild}
                         variant="contained"
                         onClick={handleEmailVerification}
                         sx={{ marginTop: 1 }}
@@ -111,7 +136,7 @@ const Register = () =>{
 
                     {/* Verification Code input and button */}
                     <Stack direction="row" spacing={2} sx={{ marginTop: 2 }}>
-                        <FormControl variant="outlined" sx={{ flexGrow: 1 }}>
+                        <FormControl variant="outlined" sx={{ flexGrow: 1 }} disabled={emailVaild}>
                             <OutlinedInput
                                 id="outlined-adornment-verification-code"
                                 label="인증 코드"
@@ -123,6 +148,7 @@ const Register = () =>{
                             variant="contained"
                             onClick={handleVerifyCode}
                             sx={{ marginTop: 1 }}
+                            disabled={emailVaild}
                         >
                             이메일 인증하기
                         </Button>
@@ -201,10 +227,41 @@ const Register = () =>{
                             onChange={(e) => setGender(e.target.value)}
                             label="성별"
                         >
-                            <MenuItem value="male">남성</MenuItem>
-                            <MenuItem value="female">여성</MenuItem>
+                            <MenuItem >남성</MenuItem>
+                            <MenuItem >여성</MenuItem>
                         </Select>
                     </FormControl>
+
+                    {/* 프로필 이미지 업로드 */}
+                    <Stack direction="column" alignItems="center" spacing={2}>
+                        <Avatar
+                            src={previewImage || ""}
+                            alt="프로필 이미지"
+                            sx={{ width: 100, height: 100, bgcolor: "grey.300" }}
+                        />
+                        <Button
+                            variant="contained"
+                            component="label"
+                            sx={{ marginTop: 1 }}
+                        >
+                            프로필 이미지 업로드
+                            <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                onChange={handleImageChange}
+                            />
+                        </Button>
+                        {previewImage && (
+                            <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={handleImageRemove}
+                            >
+                                이미지 제거
+                            </Button>
+                        )}
+                    </Stack>
 
                     <BasicBtn text="회원가입" bgColor="black" textColor="white" />
                 </Stack>

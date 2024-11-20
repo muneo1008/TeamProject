@@ -1,6 +1,5 @@
 import { Box, Typography } from "@mui/material";
 import findPColor from '../assets/colorTest/findPColor.png';
-import colorTest from '../assets/colorTest/colorTest.png';
 import PersonalColor from "../components/PersonalColor.jsx";
 import { useState } from "react";
 
@@ -12,9 +11,6 @@ const FashionTest = () => {
         setSelectTest(1);
     }
 
-    const goFashionPsychology = () => {
-        setSelectTest(2);
-    }
     return (
         <Box sx={{
             width: '100%',
@@ -46,7 +42,7 @@ const FashionTest = () => {
                     <Box sx={{
                         bgcolor: '#E6E6FA',
                         borderTopLeftRadius: '100px',
-                        boxShadow: '-2px -5px 2px rgba(0,0,0,0.1)',
+                        boxShadow: '0px -5px 2px rgba(0,0,0,0.1)',
                         pt: 7,
                         pl: 5,
                         display: 'flex',
@@ -62,21 +58,10 @@ const FashionTest = () => {
                             sx={{ width: '30%', borderRadius: '16px', mt: 1 }}
                             onClick={goPersonColor}
                         />
-                        <Typography variant="h5"
-                                    sx={{ fontWeight: 'bold', mt: 2 }}>
-                            #패션 심리 테스트
-                        </Typography>
-                        <Box
-                            component="img"
-                            src={colorTest}
-                            sx={{ width: '30%', borderRadius: '16px', mt: 1 }}
-                            onClick={goFashionPsychology}
-                        />
                     </Box>
                 </>
             )}
             {selectTest === 1 && <PersonalColor/>}
-            {selectTest === 2 && <span>패션 심리 테스트</span>}
         </Box>
     );
 }

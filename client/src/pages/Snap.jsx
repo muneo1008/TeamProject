@@ -1,72 +1,131 @@
-import { Avatar, Box, Typography, IconButton } from "@mui/material";
-import testImg from '../assets/test.jpg';
-import AddIcon from '@mui/icons-material/Add';
+import { useState } from "react";
+import {
+    Avatar,
+    Box,
+    Card,
+    CardMedia,
+    IconButton,
+    Typography,
+    Fab,
+    useMediaQuery,
+} from "@mui/material";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import AddIcon from "@mui/icons-material/Add";
+import { formatDistanceToNow } from "date-fns";
+import {useNavigate} from "react-router-dom";
 
 const Snap = () => {
-    // 테스트용
-    const posts = Array(5).fill({
-        imgSrc: `${testImg}`,
-        profileImg: "profileImgURL",
-        nickname: "닉네임",
-        timeElapsed: "5분 전",
-    });
+    const isDesktop = useMediaQuery("(min-width:768px)");
+    const navigate = useNavigate();
 
-    const handleAddClick = () => {
-        // 스냅 추가 버튼
-        console.log("스냅 추가 버튼 누름");
+    // 임시 데이터
+    const [posts, setPosts] = useState([
+        {
+            id: 1,
+            user: { name: "seon12_", profileImage: "https://via.placeholder.com/150" },
+            image: "https://via.placeholder.com/400",
+            createdAt: "2024-11-18T09:00:00Z",
+            isLiked: false,
+        },
+        {
+            id: 2,
+            user: { name: "seon12_", profileImage: "https://via.placeholder.com/150" },
+            image: "https://via.placeholder.com/400",
+            createdAt: "2024-11-17T12:00:00Z",
+            isLiked: false,
+        },
+        {
+            id: 3,
+            user: { name: "seon12_", profileImage: "https://via.placeholder.com/150" },
+            image: "https://via.placeholder.com/400",
+            createdAt: "2024-11-17T12:00:00Z",
+            isLiked: false,
+        },
+    ]);
+
+    const handleLikeToggle = (e,id) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setPosts((prevPosts) =>
+            prevPosts.map((post) =>
+                post.id === id ? { ...post, isLiked: !post.isLiked } : post
+            )
+        );
     };
 
     return (
-        <Box sx={{ position: 'relative', width: '100%' }}>
-            {posts.map((post, index) => (
-                <Box key={index} sx={{ position: 'relative', mt: 2 }}>
-                    <Box
+        <Box sx={{ minHeight: "100vh", position: "relative", overflow: "hidden",pb:7 }}>
+            {posts.map((post) => (
+                <Card key={post.id} sx={{ position: "relative", mb: 1 }} onClick={()=>navigate(`/snap/${post.id}`)}>
+
+                    <CardMedia
                         component="img"
-                        src={post.imgSrc}
-                        sx={{ width: '100%', height: '40vh', borderRadius: 2 }}
+                        image={post.image}
+                        sx={{ height: 400, objectFit: "cover" }}
                     />
+
                     <Box
                         sx={{
-                            position: 'absolute',
+                            position: "absolute",
                             top: 16,
                             left: 16,
-                            display: 'flex',
-                            alignItems: 'center',
-                            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                            padding: '4px 8px',
-                            borderRadius: 2,
-                            color: 'white',
+                            color: "white",
+                            display: "flex",
+                            alignItems: "center",
+                            textShadow: "0px 0px 5px rgba(0, 0, 0, 0.8)",
                         }}
                     >
-                        <Avatar src={post.profileImg} sx={{ width: 32, height: 32, marginRight: 1 }} />
+                        <Avatar
+                            src={post.user.profileImage}
+                            alt={post.user.name}
+                            sx={{ width: 40, height: 40, marginRight: 1 }}
+                        />
                         <Box>
-                            <Typography variant="body2">{post.nickname}</Typography>
-                            <Typography variant="caption">{post.timeElapsed}</Typography>
+                            <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                                {post.user.name}
+                            </Typography>
+                            <Typography variant="caption">
+                                {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                            </Typography>
                         </Box>
                     </Box>
-                </Box>
+
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            bottom: 16,
+                            right: 16,
+                            display: "flex",
+                            gap: 1,
+                            color: "white",
+                            textShadow: "0px 0px 5px rgba(0, 0, 0, 0.8)",
+                        }}
+                    >
+                        <IconButton
+                            sx={{ color: post.isLiked ? "red" : "white" }}
+                            onClick={(e) => handleLikeToggle(e, post.id)}
+                        >
+                            {post.isLiked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                        </IconButton>
+                    </Box>
+                </Card>
             ))}
 
-            <IconButton
-                onClick={handleAddClick}
+
+            <Fab
+                aria-label="add"
                 sx={{
-                    position: '',
-                    bottom: 70,
-                    right: 16,
-                    backgroundColor: '#c283f1',
-                    color: 'white',
-                    '&:hover': {
-                        backgroundColor: '#9a4cc2',
-                    },
-                    boxShadow: 2,
-                    borderRadius: '50%',
-                    padding: 2,
+                    position: "fixed",
+                    bottom: 90,
+                    right: isDesktop ? "calc(50% - 290px)" : 16,
+                    bgcolor:"#e6e6fa"
                 }}
             >
-                <AddIcon sx={{ fontSize: 25 }} />
-            </IconButton>
+                <AddIcon />
+            </Fab>
         </Box>
     );
-}
+};
 
 export default Snap;

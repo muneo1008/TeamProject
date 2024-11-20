@@ -4,7 +4,7 @@ import {Box, TextField, Button, Typography} from '@mui/material';
 import {useNavigate} from "react-router-dom";
 import {loginUser} from '../api.jsx'
 import {useDispatch} from "react-redux";
-import {isLogin} from "../store.jsx";
+import {isLogin, SetAge,SetGender, SetNickName} from "../store.jsx";
 import BasicBtn from "../components/BasicBtn.jsx";
 import KakaoLoginImage from "../assets/kakao_login_medium_wide.png"
 
@@ -30,14 +30,18 @@ const Login = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        //console.log("Logging in with:", { email, password });
         try{
             const result = await loginUser(email, password);
             console.log('로그인 성공' , result);
-            dispatch(isLogin(true));
+            alert('로그인 성공');
+            await dispatch(isLogin(true));
+            await dispatch(SetNickName(result.nickname));
+            await dispatch(SetAge(result.age));
+            await dispatch(SetGender(result.gender))
             navigate('/home');
         }catch (err){
             console.log('로그인 실패: ',err);
+            alert('이메일 혹은 비밀번호를 다시 확인해주세요.')
             dispatch(isLogin(false));
         }
     };

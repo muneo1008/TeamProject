@@ -3,32 +3,30 @@ import {configureStore, createSlice} from "@reduxjs/toolkit";
 let user = createSlice({
     name: "user",
     initialState: {
-        nickName: null,
+        nickname: null,
         isLogin: false,
-        email: null,
-        longitude: null,
-        latitude: null,
+        age:null,
+        gender:null,
     },
+
     reducers:{
         SetNickName(state, action){
-            state.nickName = action.payload;
+            state.nickname = action.payload;
         },
         isLogin(state, action){
             state.isLogin = action.payload;
         },
-        SetEmail(state, action){
-            state.email = action.payload;
+        SetAge(state, action){
+            state.age = action.payload;
         },
-        setLongitude(state, action){
-            state.longitude = action.payload;
+        SetGender(state, action){
+            state.gender = action.payload;
         },
-        setLatitude(state, action){
-            state.latitude = action.payload;
-        }
+
     }
 })
 
-export let {SetNickName,isLogin, SetEmail, setLatitude,setLongitude} = user.actions;
+export let {SetNickName,isLogin,SetAge,SetGender} = user.actions;
 
 export default configureStore({
     reducer:{
