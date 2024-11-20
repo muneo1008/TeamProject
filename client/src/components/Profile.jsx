@@ -1,7 +1,10 @@
 import {Avatar, Box, IconButton, Paper, Stack, Typography} from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
+import {useSelector} from "react-redux";
 
 const Profile = () => {
+
+    const user = useSelector(state => state.user);
     return (
             <Box position="relative" display="flex" alignItems="center" justifyContent="center" p={5}>
                 <IconButton
@@ -17,7 +20,7 @@ const Profile = () => {
                         sx={{ width: 100, height: 100 }}
                     />
                     <Typography variant="body2" fontWeight="bold" sx={{fontSize:'1.2rem'}} >
-                        이수민
+                        {user.nickname}
                     </Typography>
                 </Stack>
 
