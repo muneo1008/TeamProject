@@ -6,13 +6,12 @@ const TopAppBar = () => {
             <Toolbar sx={{maxWidth:'600px',
                 width:'552px',
                 backgroundColor:'#ffffff',
-                position: 'fixed',
+                position: 'static',
                 boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.1)',
                 zIndex:1100,
                 '@media (max-width: 768px)': {
                     maxWidth: '100%',
                     width: '100%',
-
                     paddingRight: '10px',
                 },}}>
                 <Typography variant="h5">
