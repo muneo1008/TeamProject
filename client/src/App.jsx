@@ -14,12 +14,13 @@ import BottomNavBar from "./components/BottomNavBar.jsx";
 import './App.css';
 import SnapDetail from "./pages/SnapDetail.jsx";
 import {userInfo} from "./api.jsx";
-import {isLogin, SetAge,SetGender, SetNickName} from "./store.jsx";
-import {useDispatch} from "react-redux";
+import {isLogin, SetAge, SetGender, SetMemberId, SetNickName, SetProfileImgUrl} from "./store.jsx";
+import {useDispatch, useSelector} from "react-redux";
 
 function App() {
     const isDesktop = useMediaQuery('(min-width:768px)');
     const dispatch = useDispatch();
+    const user = useSelector(state => state.user);
     function ScrollToTop() {
         const location = useLocation();
 
@@ -38,13 +39,15 @@ function App() {
             await dispatch(SetNickName(result.nickname));
             await dispatch(SetAge(result.age));
             await dispatch(SetGender(result.gender))
+            await dispatch(SetProfileImgUrl(result.profileImageUrl));
+            await dispatch(SetMemberId(result.memberId));
         }catch (error){
             console.log(error);
         }
     }
     useEffect(() => {
         getUserInfo();
-    }, []);
+    }, [user.isLogin]);
     return (
         <Box
             sx={{
