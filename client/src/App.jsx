@@ -14,8 +14,9 @@ import BottomNavBar from "./components/BottomNavBar.jsx";
 import './App.css';
 import SnapDetail from "./pages/SnapDetail.jsx";
 import {userInfo} from "./api.jsx";
-import {isLogin, SetAge, SetGender, SetMemberId, SetNickName, SetProfileImgUrl} from "./store.jsx";
+import {isLogin, SetAge, SetGender, SetMemberId, SetNickName, SetPersonalColor, SetProfileImgUrl} from "./store.jsx";
 import {useDispatch, useSelector} from "react-redux";
+import OtherSnap from "./pages/OtherSnap.jsx";
 
 function App() {
     const isDesktop = useMediaQuery('(min-width:768px)');
@@ -41,6 +42,7 @@ function App() {
             await dispatch(SetGender(result.gender))
             await dispatch(SetProfileImgUrl(result.profileImageUrl));
             await dispatch(SetMemberId(result.memberId));
+            await dispatch(SetPersonalColor(result.personalColor));
         }catch (error){
             console.log(error);
         }
@@ -84,6 +86,7 @@ function App() {
                     <Route path="/snap/:id" element={<SnapDetail />} />
                     <Route path='/fashion-test' element={<FashionTest />} />
                     <Route path="/signupex" element={<SingUpEx />} />
+                    <Route path="/member/:id" element={<OtherSnap/>}/>
                 </Routes>
                 <BottomNavBar />
             </Box>
