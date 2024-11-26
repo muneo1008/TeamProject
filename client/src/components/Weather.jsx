@@ -65,6 +65,7 @@ const Weather = (props) =>{
             case '4':
                 setPTY(<ShowerIcon/>);
                 setBgImg(ShowerImg);
+                setSKY('비');
                 break;
             default:
                 setSKY('정보 없음');
@@ -89,7 +90,7 @@ const Weather = (props) =>{
     const getWeather = async ()=>{
         try{
             const result = await weatherInfo(latitude, longitude);
-            PtyToIcon(result.values.PTY);
+
             setTMP(result.values.TMP);
 
             SkyToText(result.values.SKY);
@@ -100,6 +101,7 @@ const Weather = (props) =>{
             setPOP(result.values.POP);
 
             setWSD(result.values.WSD);
+            PtyToIcon(result.values.PTY);
             props.setWeatherData(result.values);
             setLoading(false);
         }catch (error){
@@ -169,39 +171,15 @@ const Weather = (props) =>{
                         sx={{
                             display: 'flex',
                             flexDirection: 'rows',
-                            alignItems: 'flex-start',
                             mb: 1,
                             ml: 2,
                             gap: 1,
                         }}
                     >
-                        {/* 최고/최저 */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography variant="body1" fontWeight="bold">
-                                🌡️ 최고/최저:
-                            </Typography>
-                            <Typography variant="body1" fontWeight="500">
-                                {TMX}° / {TMN}°
-                            </Typography>
-                        </Box>
-
-                        {/* 강수확률 */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography variant="body1" fontWeight="bold">
-                                🌧️ 강수확률:
-                            </Typography>
-                            <Typography variant="body1" fontWeight="500">
-                                {POP}%
-                            </Typography>
-                        </Box>
-
-                        {/* 풍속 */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Typography variant="body1" fontWeight="bold">
-                                💨 풍속:
-                            </Typography>
-                            <Typography variant="body1" fontWeight="500">
-                                {WSD}m/s
+                        {/* 날씨 부가 정보 */}
+                        <Box sx={{alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body2" fontWeight="bold">
+                                🌡️ 최고/최저: {TMX}° / {TMN}° 🌧️ 강수확률: {POP}% 💨 풍속: {WSD}m/s
                             </Typography>
                         </Box>
                     </Box>
