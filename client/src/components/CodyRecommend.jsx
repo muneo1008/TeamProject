@@ -12,6 +12,7 @@ const CodyRecommend = (props) => {
     const [CodyImgLoading, setCodyImgLoading] = useState(true);
     const [outfitRecommendation, setOutfitRecommendation] = useState(null);
     const getCody = async ()=>{
+        setWeathertLoading(true);
         try {
             const result = await getCodyRecommend(
                 user.age,
@@ -52,7 +53,7 @@ const CodyRecommend = (props) => {
             const response = await axios.post(`http://localhost:8080/api/crawling`, {
                 category,
                 item,
-                gender: "남성",
+                gender:user.gender,
             },{withCredentials:true});
             console.log("Crawling API Response:", response.data);
             setOutfitRecommendation(prevRecommendation => ({
@@ -151,7 +152,7 @@ const CodyRecommend = (props) => {
                 ))}
             </Box>
 
-            <Box sx={{ pl: 2,pr:2 ,maxWidth:'600px', mb:8}}>
+            <Box sx={{maxWidth:'100%', mb:8}}>
                 <Typography variant="h4" sx={{ mb: 4, textAlign: "center", fontWeight: "bold" }}>
                     오늘의 옷 추천
                 </Typography>
@@ -177,7 +178,7 @@ const CodyRecommend = (props) => {
                         if (!details) return null;
 
                         return (
-                            <Box key={category} sx={{ mb: 4 }}>
+                            <Box key={category} sx={{ mb: 4, p:2 }}>
                                 {/* 카테고리 제목 */}
                                 <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
                                     {category}
