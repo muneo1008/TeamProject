@@ -43,6 +43,8 @@ const SnapDetail = () => {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isCommentDeleteDialogOpen, setIsCommentDeleteDialogOpen] = useState(false);
     const [selectedCommentId, setSelectedCommentId] = useState(null);
+    const [editCommentId, setEditCommentId] = useState(null); // 현재 수정 중인 댓글 ID
+    const [editCommentContent, setEditCommentContent] = useState("");
 
     const user = useSelector((state)=>state.user);
     const getSnapInfoById  = async (SnapId)=>{
@@ -76,6 +78,7 @@ const SnapDetail = () => {
                 member: {
                     nickname: comment.member.nickname,
                     profileImageUrl: comment.member.profileImageUrl,
+                    memberId : comment.member.memberId,
                 },
                 content: comment.content,
                 createDate: comment.createDate,
@@ -181,7 +184,27 @@ const SnapDetail = () => {
         setSelectedCommentId(null); // 초기화
     };
 
+    //댓글 수정
+    const handleCommentEditClick = (commentId, currentContent) => {
+        setEditCommentId(commentId); // 수정 중인 댓글 ID 설정
+        setEditCommentContent(currentContent); // 기존 댓글 내용 설정
+    };
 
+    const handleEditCommentSubmit = async () => {
+        try {
+            await axios.put(
+                `http://localhost:8080/api/snaps/${id}/comments/${editCommentId}`,
+                { content: editCommentContent },
+                { withCredentials: true }
+            );
+            console.log("댓글 수정 성공");
+            setEditCommentId(null); // 수정 상태 초기화
+            setEditCommentContent(""); // 수정 내용 초기화
+            getSnapCommentInfoById(id); // 댓글 목록 갱신
+        } catch (error) {
+            console.error("댓글 수정 실패:", error);
+        }
+    };
     const isAuthor = user && user.nickname === post.user.name;
 
     const sliderSettings = {
@@ -203,7 +226,7 @@ const SnapDetail = () => {
                         <Slider {...sliderSettings}>
                             {post.images.map((image, index) => (
                                 <Card key={index} sx={{ position: "relative" }}>
-                                    <CardMedia component="img" image={image} sx={{ objectFit: "cover" }} />
+                                    <CardMedia component="img" image={image} sx={{ objectFit: "cover",maxHeight: '700px'}} />
                                     {isAuthor && (
                                         <IconButton
                                             sx={{
@@ -317,7 +340,8 @@ const SnapDetail = () => {
 
                         {comments.slice(0, commentsOpen ? comments.length : 3).map((comment) => (
                             <Box key={comment.id} sx={{ display: "flex", alignItems: "center", marginBottom: 1 }}>
-                                <Avatar src={comment.member.profileImageUrl} sx={{ width: 30, height: 30, marginRight: 1 }} />
+                                <Avatar src={comment.member.profileImageUrl} sx={{ width: 30, height: 30, marginRight: 1 }}
+                                        onClick={(e)=>{navigate(`/member/${comment.member.memberId}`);e.preventDefault();e.stopPropagation()}}/>
                                 <Box>
                                     <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                                         {comment.member.nickname}
@@ -432,28 +456,55 @@ const SnapDetail = () => {
                                             >
                                                 <Avatar src={comment.member.profileImageUrl} sx={{ width: 40, height: 40, marginRight: 1 }} />
                                                 <Box sx={{ flexGrow: 1 }}>
-                                                    <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-                                                        {comment.member.nickname}
-                                                    </Typography>
-                                                    <Typography variant="body2">{comment.content}</Typography>
+                                                    {editCommentId === comment.id ? (
+                                                        <TextField
+                                                            value={editCommentContent}
+                                                            onChange={(e) => setEditCommentContent(e.target.value)}
+                                                            fullWidth
+                                                        />
+                                                    ) : (
+                                                        <>
+                                                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                                                                {comment.member.nickname}
+                                                            </Typography>
+                                                            <Typography variant="body2">{comment.content}</Typography>
+                                                        </>
+                                                    )}
                                                 </Box>
                                                 {/* 본인의 댓글인지 확인 */}
                                                 {user.nickname === comment.member.nickname && (
                                                     <Box>
-                                                        {/* 수정 버튼 */}
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={() => alert('수정버튼 누름')}
-                                                        >
-                                                            <Edit />
-                                                        </IconButton>
-                                                        {/* 삭제 버튼 */}
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={() => handleCommentDeleteClick(comment.id)}
-                                                        >
-                                                            <Delete />
-                                                        </IconButton>
+                                                        {editCommentId === comment.id ? (
+                                                            <>
+                                                                <Button onClick={handleEditCommentSubmit} size="small">
+                                                                    수정
+                                                                </Button>
+                                                                <Button
+                                                                    onClick={() => {
+                                                                        setEditCommentId(null);
+                                                                        setEditCommentContent("");
+                                                                    }}
+                                                                    size="small"
+                                                                >
+                                                                    취소
+                                                                </Button>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={() => handleCommentEditClick(comment.id, comment.content)}
+                                                                >
+                                                                    <Edit />
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={() => handleCommentDeleteClick(comment.id)}
+                                                                >
+                                                                    <Delete />
+                                                                </IconButton>
+                                                            </>
+                                                        )}
                                                     </Box>
                                                 )}
                                             </Box>
