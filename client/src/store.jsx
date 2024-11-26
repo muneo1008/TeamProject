@@ -7,6 +7,9 @@ let user = createSlice({
         isLogin: false,
         age:null,
         gender:null,
+        profileImgUrl:null,
+        memberId:null,
+        personalColor:null,
     },
 
     reducers:{
@@ -22,11 +25,20 @@ let user = createSlice({
         SetGender(state, action){
             state.gender = action.payload;
         },
+        SetProfileImgUrl(state, action){
+            state.profileImgUrl = action.payload;
+        },
+        SetMemberId(state, action){
+            state.memberId = action.payload;
+        },
+        SetPersonalColor(state, action){
+            state.personalColor = action.payload;
+        }
 
     }
 })
 
-export let {SetNickName,isLogin,SetAge,SetGender} = user.actions;
+export let {SetNickName,isLogin,SetAge,SetGender,SetProfileImgUrl,SetMemberId,SetPersonalColor} = user.actions;
 
 export default configureStore({
     reducer:{
