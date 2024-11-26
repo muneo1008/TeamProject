@@ -89,9 +89,9 @@ const PersonalColor = () => {
                         marginBottom: 2,
                     }}
                 >
-                    <Typography variant="h6">이미지를 업로드하세요</Typography>
+                    <Typography variant="h6">이미지를 업로드하세요!</Typography>
                     <Button variant="outlined" component="label" sx={{ mt: 2 }}>
-                        파일 업로드
+                        이미지 업로드
                         <input
                             type="file"
                             hidden
