@@ -46,6 +46,9 @@ public class Member {
     @Column(nullable = false)
     private String profileImageUrl;
 
+    @Column(nullable = true)
+    private String personalColor;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdDate;

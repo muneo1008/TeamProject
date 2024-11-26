@@ -10,14 +10,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/member")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 public class MemberController {
 
     @Autowired
@@ -72,13 +74,16 @@ public class MemberController {
         String password = loginData.get("password");
 
         Optional<Member> member = memberService.login(email, password);
+        System.out.println(member.get());
         if (member.isPresent()) {
             String token = memberService.createToken(member.get());
 
             HttpHeaders headers = new HttpHeaders();
             headers.add("Set-Cookie", "token=" + token + "; Path=/; Max-Age=86400");
 
-            return ResponseEntity.ok().headers(headers).body(Map.of("success", true, "memberId", member.get().getMemberId()));
+            return ResponseEntity.ok().headers(headers).body(Map.of("success", true,
+                    "memberId", member.get().getMemberId(), "age", member.get().getAge(), "gender", member.get().getGender(),
+                    "nickname", member.get().getNickname()));
         } else {
             return ResponseEntity.status(401).body(Map.of("success", false, "message", "로그인 실패"));
         }
@@ -140,4 +145,47 @@ public class MemberController {
         memberService.resetPassword(email, newPassword);
         return ResponseEntity.ok(Map.of("message", "Password reset successfully"));
     }
+    @PutMapping("/update")
+    public ResponseEntity<?> updateMember(
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+            @RequestParam(value = "nickname", required = false) String nickname,
+            @RequestParam(value = "age", required = false) Integer age,
+            @RequestParam(value = "gender", required = false) String gender,
+            Principal principal) {
+        try {
+            Member updatedMember = memberService.updateMember(principal.getName(), profileImage, nickname, age, gender);
+            return ResponseEntity.ok(updatedMember);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().body("파일 업로드 중 오류가 발생했습니다.");
+        }
+    }
+
+    @PostMapping("/personalColor")
+    public ResponseEntity<?> savePersonalColor(@RequestBody Map<String, Object> requestParams,
+                                               Principal principal) {
+        String personalColor = (String) requestParams.get("personalColor");
+        String username = principal.getName();
+        System.out.println("유저 이름: " + username);
+
+        Optional<Member> memberOpt = memberRepository.findByEmail(username);
+
+        if (memberOpt.isPresent()) {
+            Member member = memberOpt.get();
+            member.setPersonalColor(personalColor);
+            memberRepository.save(member);
+
+            return ResponseEntity.ok("퍼스널컬러 저장완료");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유저가 없습니다.");
+        }
+    }
+
+    @GetMapping("/{memberId}")
+    public ResponseEntity<MemberDto> getMemberInfo(@PathVariable Long memberId) {
+        MemberDto memberDto = memberService.getMemberById(memberId);
+        return ResponseEntity.ok(memberDto);
+    }
+
 }

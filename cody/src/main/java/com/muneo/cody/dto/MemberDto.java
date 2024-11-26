@@ -22,5 +22,6 @@ public class MemberDto {
     private Double longitude; // 경도
     private String profileImageUrl; // 프로필 이미지
     private LocalDateTime createdDate;
+    private String personalColor;
 
 }

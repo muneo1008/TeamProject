@@ -154,6 +154,7 @@ public class MemberService {
                 .longitude(member.getLongitude())
                 .profileImageUrl(member.getProfileImageUrl())
                 .createdDate(member.getCreatedDate())
+                .personalColor(member.getPersonalColor())
                 .build();
     }
 
@@ -200,6 +201,21 @@ public class MemberService {
         }
 
         return memberRepository.save(member);
+    }
+    public MemberDto getMemberById(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        return MemberDto.builder()
+                .memberId(member.getMemberId())
+                .nickname(member.getNickname())
+                .profileImageUrl(member.getProfileImageUrl())
+                .email(member.getEmail())
+                .age(member.getAge())
+                .gender(member.getGender())
+                .latitude(member.getLatitude())
+                .longitude(member.getLongitude())
+                .createdDate(member.getCreatedDate())
+                .build();
     }
 
 }
