@@ -1,22 +1,17 @@
 
-import {Avatar, Box, Button, IconButton, Paper, Stack, Typography} from "@mui/material";
-import {removeCookies} from "../Cookie.jsx";
+import {Box} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import {useSelector} from "react-redux";
 import Profile from "../components/Profile.jsx"
 import UserSnap from "../components/UserSnap.jsx";
+import {useState} from "react";
 
 const MyPage = ()=>{
 
-    const navigate = useNavigate();
     const user = useSelector(state => state.user);
     console.log(user)
+    const [snapNum, setSnapNum] = useState(0);
 
-    const handleLogout = () => {
-        removeCookies('token');
-        navigate('/');
-        alert('로그아웃 완료');
-    }
     return(
         <Box
             sx={{
@@ -25,8 +20,8 @@ const MyPage = ()=>{
                 alignItems: 'center',
                 minHeight: '100vh',
             }}>
-            <Profile/>
-            <UserSnap/>
+            <Profile snapNum={snapNum}/>
+            <UserSnap setSnapNum={setSnapNum}/>
         </Box>
     );
 }

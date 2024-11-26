@@ -49,12 +49,14 @@ const Register = () =>{
             console.log(err);
         }
     }
+
     const handleSubmit = async (event) => {
         event.preventDefault();
+        const imgFile = await convertImageToBase64(profileImage);
         try{
             if(emailVaild && (password === checkPassword)){
                 const result = await registerUser(email, password, nickName,
-                    gender, age, location.latitude,location.longitude);
+                    gender, age, location.latitude,location.longitude, imgFile);
                 console.log('회원가입 성공: ',result);
                 alert('회원가입 성공');
                 navigate('/');
@@ -70,19 +72,28 @@ const Register = () =>{
         }
     };
 
-    const handleImageChange = (event) => {
-        const file = event.target.files[0];
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
         if (file) {
             setProfileImage(file);
-
-            // FileReader를 사용하여 미리보기 이미지 설정
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setPreviewImage(e.target.result);
-            };
-            reader.readAsDataURL(file);
+            setPreviewImage(URL.createObjectURL(file));
         }
     };
+
+    const convertImageToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            if (!file) {
+                resolve(null);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+
+    };
+
 
     const handleImageRemove = () => {
         setProfileImage(null);
@@ -227,8 +238,8 @@ const Register = () =>{
                             onChange={(e) => setGender(e.target.value)}
                             label="성별"
                         >
-                            <MenuItem >남성</MenuItem>
-                            <MenuItem >여성</MenuItem>
+                            <MenuItem value="남성">남성</MenuItem>
+                            <MenuItem value="여성">여성</MenuItem>
                         </Select>
                     </FormControl>
 
