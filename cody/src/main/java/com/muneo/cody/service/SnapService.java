@@ -51,7 +51,6 @@ public class SnapService {
                         throw new RuntimeException("Image upload failed", e);
                     }
                 }).collect(Collectors.toList());
-
         Snap snap = new Snap();
         snap.setMember(member);
         snap.setSnapDescription(description);
@@ -165,8 +164,10 @@ public class SnapService {
 
 
         AuthorDto author = AuthorDto.builder()
+                .id(snap.getMember().getMemberId())
                 .nickname(snap.getMember().getNickname())
                 .profileImageUrl(snap.getMember().getProfileImageUrl())
+                .personalColor(snap.getMember().getPersonalColor())
                 .build();
 
 
@@ -307,7 +308,7 @@ public class SnapService {
             throw new IllegalArgumentException("댓글이 게시물에 속하지 않습니다.");
         }
 
-        // 댓글 작성자와 요청한 사용자가 다른 경우 예외 처리 
+        // 댓글 작성자와 요청한 사용자가 다른 경우 예외 처리
         if (!comment.getMember().getEmail().equals(email)) {
             throw new IllegalArgumentException("댓글 수정 권한이 없습니다.");
         }
@@ -317,5 +318,22 @@ public class SnapService {
         commentRepository.save(comment);
     }
 
+    @Transactional(readOnly = true)
+    public List<SnapDto> getSnapsByMemberId(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        return snapRepository.findByMember(member).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
 
+    // 특정 회원이 좋아요한 스냅 목록 가져오기
+    @Transactional(readOnly = true)
+    public List<SnapDto> getLikedSnapsByMemberId(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        return likeRepository.findByMember(member).stream()
+                .map(like -> convertToDto(like.getSnap()))
+                .collect(Collectors.toList());
+    }
 }

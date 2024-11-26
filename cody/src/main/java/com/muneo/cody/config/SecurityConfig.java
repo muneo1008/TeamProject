@@ -28,16 +28,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/member/signup", "/api/member/login",
-                                "/api/member/verify-code","/api/member/send-code",
-                                "/api/member/kakao","api/member/signup/ex","/api/weather",
-                                "/api/ai-fashion","/api/member/reset-password").permitAll()
-                        .anyRequest().authenticated()
-                )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 

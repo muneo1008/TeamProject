@@ -158,5 +158,17 @@ public class SnapController {
         }
     }
 
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<SnapDto>> getSnapsByMember(@PathVariable Long memberId) {
+        List<SnapDto> snaps = snapService.getSnapsByMemberId(memberId);
+        return ResponseEntity.ok(snaps);
+    }
+
+    @GetMapping("/member/{memberId}/liked")
+    public ResponseEntity<List<SnapDto>> getLikedSnapsByMember(@PathVariable Long memberId) {
+        List<SnapDto> likedSnaps = snapService.getLikedSnapsByMemberId(memberId);
+        return ResponseEntity.ok(likedSnaps);
+    }
+
 
 }
